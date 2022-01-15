@@ -152,14 +152,34 @@ void Game::CreateBasicGeometry()
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	Vertex verts1[] = {
-		{ XMFLOAT3(+0.0f, +0.5f, +0.0f), red },
-		{ XMFLOAT3(+0.5f, -0.5f, +0.0f), blue },
-		{ XMFLOAT3(-0.5f, -0.5f, +0.0f), green },
+		{ XMFLOAT3(+0.50f, +0.75f, +0.00f), red },
+		{ XMFLOAT3(+0.75f, +0.25f, +0.00f), blue },
+		{ XMFLOAT3(+0.25f, +0.25f, +0.00f), green },
 	};
 	unsigned int ind1[] = { 0, 1, 2 };
 
+	Vertex verts2[] = {
+		{ XMFLOAT3(-0.75f, +0.50f, +0.00f), red },
+		{ XMFLOAT3(-0.50f, +0.50f, +0.00f), blue },
+		{ XMFLOAT3(-0.50f, +0.20f, +0.00f), red },
+		{ XMFLOAT3(-0.75f, +0.20f, +0.00f), blue },
+	};
+	unsigned int ind2[] = { 0, 1, 2, 0, 2, 3 };
+
+	Vertex verts3[] = {
+		{ XMFLOAT3(+0.00f, +0.30f, +0.00f), white },
+		{ XMFLOAT3(+0.15f, +0.15f, +0.00f), black },
+		{ XMFLOAT3(+0.15f, -0.15f, +0.00f), white },
+		{ XMFLOAT3(+0.00f, -0.30f, +0.00f), black },
+		{ XMFLOAT3(-0.15f, -0.15f, +0.00f), white },
+		{ XMFLOAT3(-0.15f, +0.15f, +0.00f), black },
+	};
+	unsigned int ind3[] = { 0,1,5 , 1,2,5 , 2,3,4 , 2,4,5 };
+
 	shapes = {
-		std::make_shared<Mesh>(verts1, 3, ind1, 3, device, context),
+		std::make_shared<Mesh>(verts1, 03, ind1, 03, device, context),
+		std::make_shared<Mesh>(verts2, 04, ind2, 06, device, context),
+		std::make_shared<Mesh>(verts3, 06, ind3, 12, device, context),
 	};
 }
 
