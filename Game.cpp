@@ -225,6 +225,24 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
+	// create constant buffer
+	VertexShaderExternalData vsData;
+	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
+	vsData.offset = XMFLOAT3(0.25f, 0.0f, 0.0f);
+
+	// copy constant buffer to resource
+	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+	context->Map(constantBufferVS.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
+	context->Unmap(constantBufferVS.Get(), 0);
+
+	// bind constant buffer
+	context->VSSetConstantBuffers(
+		0,								// which slot (register) to bind buffer to?
+		1,								// how many are we activating? can do multiple at once?
+		constantBufferVS.GetAddressOf() // Array of buffers (or address of one)
+	);
+
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 
