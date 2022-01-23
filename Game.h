@@ -44,5 +44,6 @@ private:
 	// Temporary A2 shapes
 	std::vector<std::shared_ptr<Mesh>> shapes;
 
+	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };
 
