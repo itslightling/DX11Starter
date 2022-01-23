@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "Input.h"
+#include "BufferStructs.h"
 
 // Needed for a helper function to read compiled shader files from the hard drive
 #pragma comment(lib, "d3dcompiler.lib")
@@ -63,6 +64,21 @@ void Game::Init()
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Get size as the next multiple of 16 (instead of hardcoding a size here!)
+	unsigned int size = sizeof(VertexShaderExternalData);
+	// This will work even if your struct size changes.
+	// Adding 15 ensures either go past next multiple of 16, or if size is already a multiple, we almost get to next multiple.
+	// Integer division tells us how many 16's would fit (w/o remainder). Get back to multiple of 16 with multiplication step.
+	size = (size + 15) / 16 * 16;
+	// Describe constant buffer
+	D3D11_BUFFER_DESC cbDesc	= {}; // zero-out
+	cbDesc.BindFlags			= D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.ByteWidth			= size; // must be multiple of 16
+	cbDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
+	cbDesc.Usage				= D3D11_USAGE_DYNAMIC;
+
+	device->CreateBuffer(&cbDesc, 0, constantBufferVS.GetAddressOf());
 }
 
 // --------------------------------------------------------
