@@ -230,6 +230,27 @@ void Game::Update(float deltaTime, float totalTime)
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
+
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		entities[i]->GetTransform()->SetScale(0.1f * (i + 1), 0.1f * (i + 1), 0.1f * (i + 1));
+		entities[i]->GetTransform()->SetRotation(0.1f * (i + 1) * sin(totalTime), 0.1f * (i + 1) * sin(totalTime), 0.1f * (i + 1) * sin(totalTime));
+		// this range uses shapes[0] for testing
+		if (i < 3)
+		{
+			entities[i]->GetTransform()->SetPosition(tan((double)totalTime * ((double)i + (double)1)) * 0.1f, 0, 0);
+		}
+		// this range uses shapes[1] for testing
+		else if (i < 6)
+		{
+			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * 0.1f, 0, 0);
+		}
+		// this range uses shapes[2] for testing
+		else
+		{
+			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * cos(totalTime) * 0.1f, 0, 0);
+		}
+	}
 }
 
 // --------------------------------------------------------
