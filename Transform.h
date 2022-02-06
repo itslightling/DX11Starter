@@ -22,7 +22,6 @@ public:
 	void					Rotate(float _pitch, float _yaw, float _roll);
 	void					Scale(float _x, float _y, float _z);
 
-
 private:
 	DirectX::XMFLOAT3		position;
 	DirectX::XMFLOAT3		eulerAngles;

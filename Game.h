@@ -2,6 +2,7 @@
 
 #include "DXCore.h"
 #include "Mesh.h"
+#include "Entity.h"
 #include <DirectXMath.h>
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
 #include <memory>
@@ -43,6 +44,8 @@ private:
 
 	// Temporary A2 shapes
 	std::vector<std::shared_ptr<Mesh>> shapes;
+	// Temporary A3 entities;
+	std::vector<std::shared_ptr<Entity>> entities;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };

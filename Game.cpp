@@ -197,6 +197,18 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Mesh>(verts2, 04, ind2, 06, device, context),
 		std::make_shared<Mesh>(verts3, 06, ind3, 12, device, context),
 	};
+
+	entities = {
+		std::make_shared<Entity>(shapes[0]),
+		std::make_shared<Entity>(shapes[0]),
+		std::make_shared<Entity>(shapes[0]),
+		std::make_shared<Entity>(shapes[1]),
+		std::make_shared<Entity>(shapes[1]),
+		std::make_shared<Entity>(shapes[1]),
+		std::make_shared<Entity>(shapes[2]),
+		std::make_shared<Entity>(shapes[2]),
+		std::make_shared<Entity>(shapes[2]),
+	};
 }
 
 
@@ -225,26 +237,8 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	// create constant buffer
-	VertexShaderExternalData vsData;
-	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
-	vsData.offset = XMFLOAT3(0.25f, 0.0f, 0.0f);
-
-	// copy constant buffer to resource
-	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-	context->Map(constantBufferVS.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
-	context->Unmap(constantBufferVS.Get(), 0);
-
-	// bind constant buffer
-	context->VSSetConstantBuffers(
-		0,								// which slot (register) to bind buffer to?
-		1,								// how many are we activating? can do multiple at once?
-		constantBufferVS.GetAddressOf() // Array of buffers (or address of one)
-	);
-
 	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	static const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -256,25 +250,41 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-
-	// Set the vertex and pixel shaders to use for the next Draw() command
-	//  - These don't technically need to be set every frame
-	//  - Once you start applying different shaders to different objects,
-	//    you'll need to swap the current shaders before each draw
-	context->VSSetShader(vertexShader.Get(), 0, 0);
-	context->PSSetShader(pixelShader.Get(), 0, 0);
-
-
-	// Ensure the pipeline knows how to interpret the data (numbers)
-	// from the vertex buffer.  
-	// - If all of your 3D models use the exact same vertex layout,
-	//    this could simply be done once in Init()
-	// - However, this isn't always the case (but might be for this course)
-	context->IASetInputLayout(inputLayout.Get());
-
-	for (int i = 0; i < shapes.size(); ++i)
+	for (auto entity : entities)
 	{
-		shapes[i]->Draw();
+		// create constant buffer
+		VertexShaderExternalData vsData;
+		vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
+		vsData.world = entity->GetTransform()->GetWorldMatrix();
+
+		// copy constant buffer to resource
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		context->Map(constantBufferVS.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
+		context->Unmap(constantBufferVS.Get(), 0);
+
+		// bind constant buffer
+		context->VSSetConstantBuffers(
+			0,								// which slot (register) to bind buffer to?
+			1,								// how many are we activating? can do multiple at once?
+			constantBufferVS.GetAddressOf() // Array of buffers (or address of one)
+		);
+
+		// Set the vertex and pixel shaders to use for the next Draw() command
+		//  - These don't technically need to be set every frame
+		//  - Once you start applying different shaders to different objects,
+		//    you'll need to swap the current shaders before each draw
+		context->VSSetShader(vertexShader.Get(), 0, 0);
+		context->PSSetShader(pixelShader.Get(), 0, 0);
+
+		// Ensure the pipeline knows how to interpret the data (numbers)
+		// from the vertex buffer.  
+		// - If all of your 3D models use the exact same vertex layout,
+		//    this could simply be done once in Init()
+		// - However, this isn't always the case (but might be for this course)
+		context->IASetInputLayout(inputLayout.Get());
+
+		entity->GetMesh()->Draw();
 	}
 
 	// Present the back buffer to the user
