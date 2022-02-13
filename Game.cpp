@@ -6,6 +6,7 @@
 // Needed for a helper function to read compiled shader files from the hard drive
 #pragma comment(lib, "d3dcompiler.lib")
 #include <d3dcompiler.h>
+#include <iostream>
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -32,6 +33,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
+	camera = std::make_shared<Camera>(0.0f, 0.0f, -1.0f, (float)width / height, 70, 0.01f, 1000.0f);
 }
 
 // --------------------------------------------------------
@@ -168,11 +170,12 @@ void Game::CreateBasicGeometry()
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	Vertex verts1[] = {
-		{ XMFLOAT3(+0.50f, +0.75f, +0.00f), red },
-		{ XMFLOAT3(+0.75f, +0.25f, +0.00f), blue },
-		{ XMFLOAT3(+0.25f, +0.25f, +0.00f), green },
+		{ XMFLOAT3(+0.00f, +0.00f, +0.25f), white },
+		{ XMFLOAT3(-0.25f, -0.25f, -0.25f), red },
+		{ XMFLOAT3(+0.00f, +0.25f, -0.25f), green },
+		{ XMFLOAT3(+0.25f, -0.25f, -0.25f), blue },
 	};
-	unsigned int ind1[] = { 0, 1, 2 };
+	unsigned int ind1[] = { 0,1,2 , 0,2,3 , 0,3,1 , 3,2,1 };
 
 	Vertex verts2[] = {
 		{ XMFLOAT3(-0.75f, +0.50f, +0.00f), red },
@@ -180,22 +183,22 @@ void Game::CreateBasicGeometry()
 		{ XMFLOAT3(-0.50f, +0.20f, +0.00f), red },
 		{ XMFLOAT3(-0.75f, +0.20f, +0.00f), blue },
 	};
-	unsigned int ind2[] = { 0, 1, 2, 0, 2, 3 };
+	unsigned int ind2[] = { 0,1,2, 0,2,3 , 3,2,0 , 2,1,0 };
 
 	Vertex verts3[] = {
-		{ XMFLOAT3(+0.00f, +0.30f, +0.00f), white },
-		{ XMFLOAT3(+0.15f, +0.15f, +0.00f), black },
-		{ XMFLOAT3(+0.15f, -0.15f, +0.00f), white },
-		{ XMFLOAT3(+0.00f, -0.30f, +0.00f), black },
-		{ XMFLOAT3(-0.15f, -0.15f, +0.00f), white },
-		{ XMFLOAT3(-0.15f, +0.15f, +0.00f), black },
+		{ XMFLOAT3(+0.00f, +0.30f, +0.15f), white },
+		{ XMFLOAT3(+0.30f, +0.15f, +0.00f), black },
+		{ XMFLOAT3(+0.30f, -0.15f, +0.00f), white },
+		{ XMFLOAT3(+0.00f, -0.30f, +0.15f), black },
+		{ XMFLOAT3(-0.30f, -0.15f, +0.00f), white },
+		{ XMFLOAT3(-0.30f, +0.15f, +0.00f), black },
 	};
-	unsigned int ind3[] = { 0,1,5 , 1,2,5 , 2,3,4 , 2,4,5 };
+	unsigned int ind3[] = { 0,1,5 , 1,2,5 , 2,3,4 , 2,4,5 , 5,4,2 , 4,3,2 , 5,2,1 , 5,1,0 };
 
 	shapes = {
-		std::make_shared<Mesh>(verts1, 03, ind1, 03, device, context),
-		std::make_shared<Mesh>(verts2, 04, ind2, 06, device, context),
-		std::make_shared<Mesh>(verts3, 06, ind3, 12, device, context),
+		std::make_shared<Mesh>(verts1, 4, ind1, 12, device, context),
+		std::make_shared<Mesh>(verts2, 4, ind2, 12, device, context),
+		std::make_shared<Mesh>(verts3, 6, ind3, 24, device, context),
 	};
 
 	entities = {
@@ -220,6 +223,9 @@ void Game::OnResize()
 {
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
+
+	// Ensure camera has its projection matrix updated when window size changes
+	camera->SetAspect((float)width / height);
 }
 
 // --------------------------------------------------------
@@ -231,24 +237,26 @@ void Game::Update(float deltaTime, float totalTime)
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
 
+	camera->Update(deltaTime);
+
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		entities[i]->GetTransform()->SetScale(0.1f * (i + 1), 0.1f * (i + 1), 0.1f * (i + 1));
+		entities[i]->GetTransform()->SetScale(0.2f * (i + 1), 0.2f * (i + 1), 0.2f * (i + 1));
 		entities[i]->GetTransform()->SetRotation(0.1f * (i + 1) * sin(totalTime), 0.1f * (i + 1) * sin(totalTime), 0.1f * (i + 1) * sin(totalTime));
 		// this range uses shapes[0] for testing
 		if (i < 3)
 		{
-			entities[i]->GetTransform()->SetPosition(tan((double)totalTime * ((double)i + (double)1)) * 0.1f, 0, 0);
+			entities[i]->GetTransform()->SetPosition(tan((double)totalTime * ((double)i + (double)1)) * 0.1f, sin(totalTime) * 0.1f, (double)i * 0.1f);
 		}
 		// this range uses shapes[1] for testing
 		else if (i < 6)
 		{
-			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * 0.1f, 0, 0);
+			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * 0.1f, cos(totalTime) * 0.1f, (double)i * 0.1f);
 		}
 		// this range uses shapes[2] for testing
 		else
 		{
-			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * cos(totalTime) * 0.1f, 0, 0);
+			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * cos(totalTime) * 0.1f, 0, (double)i * 0.1f);
 		}
 	}
 }
@@ -277,6 +285,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		VertexShaderExternalData vsData;
 		vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
 		vsData.world = entity->GetTransform()->GetWorldMatrix();
+		vsData.view = camera->GetViewMatrix();
+		vsData.projection = camera->GetProjectionMatrix();
 
 		// copy constant buffer to resource
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};

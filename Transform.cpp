@@ -38,6 +38,21 @@ DirectX::XMFLOAT4X4 Transform::GetWorldMatrixInverseTranspose()
 	return worldMatrixInverseTranspose;
 }
 
+DirectX::XMFLOAT3 Transform::GetRight()
+{
+	return right;
+}
+
+DirectX::XMFLOAT3 Transform::GetUp()
+{
+	return up;
+}
+
+DirectX::XMFLOAT3 Transform::GetForward()
+{
+	return forward;
+}
+
 // XMVECTOR & XMStoreFloat compiles down to something faster than position += x,y,z because it happens all at once
 
 void Transform::SetPosition(float _x, float _y, float _z)
@@ -52,6 +67,7 @@ void Transform::SetRotation(float _pitch, float _yaw, float _roll)
 	XMVECTOR newRotation = XMVectorSet(_pitch, _yaw, _roll, 0);
 	XMStoreFloat3(&eulerAngles, newRotation);
 	worldMatrixChanged = true;
+	UpdateDirections();
 }
 
 void Transform::SetScale(float _x, float _y, float _z)
@@ -69,12 +85,22 @@ void Transform::TranslateAbsolute(float _x, float _y, float _z)
 	worldMatrixChanged = true;
 }
 
+void Transform::TranslateRelative(float _x, float _y, float _z)
+{
+	XMVECTOR moveVector = XMVectorSet(_x, _y, _z, 0);
+	XMVECTOR rotateVector = XMVector3Rotate(moveVector, XMQuaternionRotationRollPitchYaw(eulerAngles.x, eulerAngles.y, eulerAngles.z));
+	XMVECTOR newPosition = XMLoadFloat3(&position) + rotateVector;
+	XMStoreFloat3(&position, newPosition);
+	worldMatrixChanged = true;
+}
+
 void Transform::Rotate(float _pitch, float _yaw, float _roll)
 {
-	XMVECTOR newRotation = XMLoadFloat3(&position);
+	XMVECTOR newRotation = XMLoadFloat3(&eulerAngles);
 	XMVECTOR offset = XMVectorSet(_pitch, _yaw, _roll, 0);
 	XMStoreFloat3(&eulerAngles, newRotation + offset);
 	worldMatrixChanged = true;
+	UpdateDirections();
 }
 
 void Transform::Scale(float _x, float _y, float _z)
@@ -93,4 +119,11 @@ void Transform::UpdateWorldMatrix()
 
 	XMStoreFloat4x4(&worldMatrix, matrixScale * matrixRotation * matrixPosition);
 	XMStoreFloat4x4(&worldMatrixInverseTranspose, XMMatrixInverse(0, XMMatrixTranspose(XMLoadFloat4x4(&worldMatrix))));
+}
+
+void Transform::UpdateDirections()
+{
+	XMStoreFloat3(&right,   XMVector3Rotate(XMVectorSet(1, 0, 0, 0), XMQuaternionRotationRollPitchYaw(eulerAngles.x, eulerAngles.y, eulerAngles.z)));
+	XMStoreFloat3(&up,      XMVector3Rotate(XMVectorSet(0, 1, 0, 0), XMQuaternionRotationRollPitchYaw(eulerAngles.x, eulerAngles.y, eulerAngles.z)));
+	XMStoreFloat3(&forward, XMVector3Rotate(XMVectorSet(0, 0, 1, 0), XMQuaternionRotationRollPitchYaw(eulerAngles.x, eulerAngles.y, eulerAngles.z)));
 }
