@@ -69,6 +69,15 @@ void Transform::TranslateAbsolute(float _x, float _y, float _z)
 	worldMatrixChanged = true;
 }
 
+void Transform::TranslateRelative(float _x, float _y, float _z)
+{
+	XMVECTOR moveVector = XMVectorSet(_x, _y, _z, 0);
+	XMVECTOR rotateVector = XMVector3Rotate(moveVector, XMQuaternionRotationRollPitchYaw(eulerAngles.x, eulerAngles.y, eulerAngles.z));
+	XMVECTOR newPosition = XMLoadFloat3(&position) + rotateVector;
+	XMStoreFloat3(&position, newPosition);
+	worldMatrixChanged = true;
+}
+
 void Transform::Rotate(float _pitch, float _yaw, float _roll)
 {
 	XMVECTOR newRotation = XMLoadFloat3(&position);
