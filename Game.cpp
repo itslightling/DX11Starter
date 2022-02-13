@@ -6,6 +6,7 @@
 // Needed for a helper function to read compiled shader files from the hard drive
 #pragma comment(lib, "d3dcompiler.lib")
 #include <d3dcompiler.h>
+#include <iostream>
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -32,7 +33,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	camera = std::make_shared<Camera>(0.0f, 0.0f, -5.0f, (float)width / height, 90, 0.01f, 1000.0f);
+	camera = std::make_shared<Camera>(0.0f, 0.0f, -1.0f, (float)width / height, 70, 0.01f, 1000.0f);
 }
 
 // --------------------------------------------------------
@@ -244,17 +245,17 @@ void Game::Update(float deltaTime, float totalTime)
 		// this range uses shapes[0] for testing
 		if (i < 3)
 		{
-			entities[i]->GetTransform()->SetPosition(tan((double)totalTime * ((double)i + (double)1)) * 0.1f, 0, 0);
+			entities[i]->GetTransform()->SetPosition(tan((double)totalTime * ((double)i + (double)1)) * 0.1f, sin(totalTime) * 0.1f, (double)i * 0.1f);
 		}
 		// this range uses shapes[1] for testing
 		else if (i < 6)
 		{
-			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * 0.1f, 0, 0);
+			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * 0.1f, cos(totalTime) * 0.1f, (double)i * 0.1f);
 		}
 		// this range uses shapes[2] for testing
 		else
 		{
-			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * cos(totalTime) * 0.1f, 0, 0);
+			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * cos(totalTime) * 0.1f, 0, (double)i * 0.1f);
 		}
 	}
 }

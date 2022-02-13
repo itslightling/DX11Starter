@@ -23,6 +23,7 @@ Camera::~Camera()
 void Camera::Update(float _dt)
 {
 	ReadInput(_dt);
+	ClampRotation();
 	UpdateViewMatrix();
 }
 
@@ -101,4 +102,29 @@ void Camera::ReadInput(float _dt)
 
 	transform.TranslateRelative(moveLat * _dt * modify, 0, moveLong * _dt * modify);
 	transform.TranslateAbsolute(0, moveVert * _dt * modify, 0);
+
+	if (input.MouseLeftDown())
+	{
+		float cursorX = (float)input.GetMouseXDelta();
+		float cursorY = (float)input.GetMouseYDelta();
+		static const float mouseSpeed = 0.1f;
+
+		transform.Rotate(cursorY * _dt * mouseSpeed, cursorX * _dt * mouseSpeed, 0);
+	}
+
+	float rotateX = 0;
+	float rotateY = 0;
+
+	if (input.KeyDown('C')) rotateX += 1.0f;
+	if (input.KeyDown('Z')) rotateX -= 1.0f;
+	if (input.KeyDown('F')) rotateY += 1.0f;
+	if (input.KeyDown('R')) rotateY -= 1.0f;
+	transform.Rotate(rotateY * _dt, rotateX * _dt, 0);
+}
+
+void Camera::ClampRotation()
+{
+	XMFLOAT3 eulerAngles = transform.GetEulerAngles();
+	if (eulerAngles.x > XM_PIDIV4) transform.SetRotation(XM_PIDIV4, eulerAngles.y, eulerAngles.z);
+	if (eulerAngles.x < -XM_PIDIV4) transform.SetRotation(-XM_PIDIV4, eulerAngles.y, eulerAngles.z);
 }

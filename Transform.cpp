@@ -96,7 +96,7 @@ void Transform::TranslateRelative(float _x, float _y, float _z)
 
 void Transform::Rotate(float _pitch, float _yaw, float _roll)
 {
-	XMVECTOR newRotation = XMLoadFloat3(&position);
+	XMVECTOR newRotation = XMLoadFloat3(&eulerAngles);
 	XMVECTOR offset = XMVectorSet(_pitch, _yaw, _roll, 0);
 	XMStoreFloat3(&eulerAngles, newRotation + offset);
 	worldMatrixChanged = true;

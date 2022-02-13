@@ -34,4 +34,5 @@ private:
 	Transform			transform;
 
 	void				ReadInput(float _dt);
+	void				ClampRotation();
 };
