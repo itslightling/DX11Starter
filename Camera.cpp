@@ -124,7 +124,8 @@ void Camera::ReadInput(float _dt)
 
 void Camera::ClampRotation()
 {
+	static const float rotationLimit = XM_PIDIV2 - XM_1DIV2PI;
 	XMFLOAT3 eulerAngles = transform.GetEulerAngles();
-	if (eulerAngles.x > XM_PIDIV4) transform.SetRotation(XM_PIDIV4, eulerAngles.y, eulerAngles.z);
-	if (eulerAngles.x < -XM_PIDIV4) transform.SetRotation(-XM_PIDIV4, eulerAngles.y, eulerAngles.z);
+	if (eulerAngles.x > rotationLimit) transform.SetRotation(rotationLimit, eulerAngles.y, eulerAngles.z);
+	if (eulerAngles.x < -rotationLimit) transform.SetRotation(-rotationLimit, eulerAngles.y, eulerAngles.z);
 }
