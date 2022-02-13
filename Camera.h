@@ -32,4 +32,6 @@ private:
 	DirectX::XMFLOAT4X4 projectionMatrix;
 
 	Transform			transform;
+
+	void				ReadInput(float _dt);
 };

@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Input.h"
 
 using namespace DirectX;
 
@@ -21,7 +22,7 @@ Camera::~Camera()
 
 void Camera::Update(float _dt)
 {
-	transform.TranslateRelative(0, 0, _dt);
+	ReadInput(_dt);
 	UpdateViewMatrix();
 }
 
@@ -78,4 +79,26 @@ void Camera::SetFarClip(float _far)
 {
 	clipFar = _far;
 	UpdateProjectionMatrix();
+}
+
+void Camera::ReadInput(float _dt)
+{
+	Input& input = Input::GetInstance();
+
+	float modify = 1.0f;
+	float moveLong = 0;
+	float moveLat = 0;
+	float moveVert = 0;
+
+	if (input.KeyDown('W')) moveLong += 1.0f;
+	if (input.KeyDown('S')) moveLong -= 1.0f;
+	if (input.KeyDown('D')) moveLat  += 1.0f;
+	if (input.KeyDown('A')) moveLat  -= 1.0f;
+	if (input.KeyDown('E')) moveVert += 1.0f;
+	if (input.KeyDown('Q')) moveVert -= 1.0f;
+	if (input.KeyDown(VK_SHIFT))   modify *= 2.0f;
+	if (input.KeyDown(VK_CONTROL)) modify /= 2.0f;
+
+	transform.TranslateRelative(moveLat * _dt * modify, 0, moveLong * _dt * modify);
+	transform.TranslateAbsolute(0, moveVert * _dt * modify, 0);
 }
