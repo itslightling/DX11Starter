@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DXCore.h"
+#include "Camera.h"
 #include "Mesh.h"
 #include "Entity.h"
 #include <DirectXMath.h>
@@ -44,8 +45,10 @@ private:
 
 	// Temporary A2 shapes
 	std::vector<std::shared_ptr<Mesh>> shapes;
-	// Temporary A3 entities;
+	// Temporary A4 entities;
 	std::vector<std::shared_ptr<Entity>> entities;
+	// A5 Camera
+	std::shared_ptr<Camera> camera;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };

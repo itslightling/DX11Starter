@@ -32,6 +32,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
+	camera = std::make_shared<Camera>(0.0f, 0.0f, -5.0f, (float)width / height, 90, 0.01f, 1000.0f);
 }
 
 // --------------------------------------------------------
@@ -220,6 +221,9 @@ void Game::OnResize()
 {
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
+
+	// Ensure camera has its projection matrix updated when window size changes
+	camera->SetAspect((float)width / height);
 }
 
 // --------------------------------------------------------
@@ -230,6 +234,8 @@ void Game::Update(float deltaTime, float totalTime)
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
+
+	camera->Update(deltaTime);
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
@@ -277,6 +283,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		VertexShaderExternalData vsData;
 		vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
 		vsData.world = entity->GetTransform()->GetWorldMatrix();
+		vsData.view = camera->GetViewMatrix();
+		vsData.projection = camera->GetProjectionMatrix();
 
 		// copy constant buffer to resource
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};

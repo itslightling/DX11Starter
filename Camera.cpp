@@ -28,7 +28,10 @@ void Camera::Update(float _dt)
 void Camera::UpdateViewMatrix()
 {
 	XMFLOAT3 worldUp = XMFLOAT3(0, 1, 0);
-	XMMATRIX view = XMMatrixLookToLH(XMLoadFloat3(&transform.GetPosition()), XMLoadFloat3(&transform.GetForward()), XMLoadFloat3(&worldUp));
+	XMFLOAT3 position = transform.GetPosition();
+	XMFLOAT3 forward = transform.GetForward();
+
+	XMMATRIX view = XMMatrixLookToLH(XMLoadFloat3(&position), XMLoadFloat3(&forward), XMLoadFloat3(&worldUp));
 	XMStoreFloat4x4(&viewMatrix, view);
 }
 
