@@ -190,13 +190,15 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for (auto entity : entities)
 	{
-		// create constant buffer
 		std::shared_ptr<SimpleVertexShader> vs = entity->GetMaterial()->GetVertexShader();
-		vs->SetFloat4("colorTint", entity->GetMaterial()->GetTint());
 		vs->SetMatrix4x4("world", entity->GetTransform()->GetWorldMatrix());
 		vs->SetMatrix4x4("view", camera->GetViewMatrix());
 		vs->SetMatrix4x4("projection", camera->GetProjectionMatrix());
 		vs->CopyAllBufferData();
+
+		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
+		ps->SetFloat4("tint", entity->GetMaterial()->GetTint());
+		ps->CopyAllBufferData();
 
 		entity->GetMaterial()->GetVertexShader()->SetShader();
 		entity->GetMaterial()->GetPixelShader()->SetShader();
