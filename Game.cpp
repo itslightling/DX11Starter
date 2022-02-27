@@ -98,37 +98,32 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	// Create some temporary variables to represent colors
-	// - Not necessary, just makes things more readable
-	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-	XMFLOAT4 black = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT3 normals = XMFLOAT3(0, 0, -1);
+	XMFLOAT2 uvs = XMFLOAT2(0, 0);
 
 	Vertex verts1[] = {
-		{ XMFLOAT3(+0.00f, +0.00f, +0.25f), white },
-		{ XMFLOAT3(-0.25f, -0.25f, -0.25f), red },
-		{ XMFLOAT3(+0.00f, +0.25f, -0.25f), green },
-		{ XMFLOAT3(+0.25f, -0.25f, -0.25f), blue },
+		{ XMFLOAT3(+0.00f, +0.00f, +0.25f), normals, uvs },
+		{ XMFLOAT3(-0.25f, -0.25f, -0.25f), normals, uvs },
+		{ XMFLOAT3(+0.00f, +0.25f, -0.25f), normals, uvs },
+		{ XMFLOAT3(+0.25f, -0.25f, -0.25f), normals, uvs },
 	};
 	unsigned int ind1[] = { 0,1,2 , 0,2,3 , 0,3,1 , 3,2,1 };
 
 	Vertex verts2[] = {
-		{ XMFLOAT3(-0.75f, +0.50f, +0.00f), red },
-		{ XMFLOAT3(-0.50f, +0.50f, +0.00f), blue },
-		{ XMFLOAT3(-0.50f, +0.20f, +0.00f), red },
-		{ XMFLOAT3(-0.75f, +0.20f, +0.00f), blue },
+		{ XMFLOAT3(-0.75f, +0.50f, +0.00f), normals, uvs },
+		{ XMFLOAT3(-0.50f, +0.50f, +0.00f), normals, uvs },
+		{ XMFLOAT3(-0.50f, +0.20f, +0.00f), normals, uvs },
+		{ XMFLOAT3(-0.75f, +0.20f, +0.00f), normals, uvs },
 	};
 	unsigned int ind2[] = { 0,1,2, 0,2,3 , 3,2,0 , 2,1,0 };
 
 	Vertex verts3[] = {
-		{ XMFLOAT3(+0.00f, +0.30f, +0.15f), white },
-		{ XMFLOAT3(+0.30f, +0.15f, +0.00f), black },
-		{ XMFLOAT3(+0.30f, -0.15f, +0.00f), white },
-		{ XMFLOAT3(+0.00f, -0.30f, +0.15f), black },
-		{ XMFLOAT3(-0.30f, -0.15f, +0.00f), white },
-		{ XMFLOAT3(-0.30f, +0.15f, +0.00f), black },
+		{ XMFLOAT3(+0.00f, +0.30f, +0.15f), normals, uvs },
+		{ XMFLOAT3(+0.30f, +0.15f, +0.00f), normals, uvs },
+		{ XMFLOAT3(+0.30f, -0.15f, +0.00f), normals, uvs },
+		{ XMFLOAT3(+0.00f, -0.30f, +0.15f), normals, uvs },
+		{ XMFLOAT3(-0.30f, -0.15f, +0.00f), normals, uvs },
+		{ XMFLOAT3(-0.30f, +0.15f, +0.00f), normals, uvs },
 	};
 	unsigned int ind3[] = { 0,1,5 , 1,2,5 , 2,3,4 , 2,4,5 , 5,4,2 , 4,3,2 , 5,2,1 , 5,1,0 };
 

@@ -16,6 +16,12 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{e76f01f5-08db-40d4-8720-b5b21f7ec0a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{27304946-4bdd-48b3-86d6-d0de49df247a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Models">
+      <UniqueIdentifier>{70d904c1-abb7-4ffe-a6fd-58c67ea6f72b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -88,5 +94,28 @@
     <FxCompile Include="VertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Assets\Models\cube.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\cylinder.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\helix.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\quad.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\quad_double_sided.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\sphere.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\torus.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
