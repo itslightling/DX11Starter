@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include "Input.h"
 #include "BufferStructs.h"
+#include "SimpleShader.h"
 
 // Needed for a helper function to read compiled shader files from the hard drive
 #pragma comment(lib, "d3dcompiler.lib")
@@ -93,68 +94,9 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	// Blob for reading raw data
-	// - This is a simplified way of handling raw data
-	ID3DBlob* shaderBlob;
-
-	// Read our compiled vertex shader code into a blob
-	// - Essentially just "open the file and plop its contents here"
-	D3DReadFileToBlob(
-		GetFullPathTo_Wide(L"VertexShader.cso").c_str(), // Using a custom helper for file paths
-		&shaderBlob);
-
-	// Create a vertex shader from the information we
-	// have read into the blob above
-	// - A blob can give a pointer to its contents, and knows its own size
-	device->CreateVertexShader(
-		shaderBlob->GetBufferPointer(), // Get a pointer to the blob's contents
-		shaderBlob->GetBufferSize(),	// How big is that data?
-		0,								// No classes in this shader
-		vertexShader.GetAddressOf());	// The address of the ID3D11VertexShader*
-
-
-	// Create an input layout that describes the vertex format
-	// used by the vertex shader we're using
-	//  - This is used by the pipeline to know how to interpret the raw data
-	//     sitting inside a vertex buffer
-	//  - Doing this NOW because it requires a vertex shader's byte code to verify against!
-	//  - Luckily, we already have that loaded (the blob above)
-	D3D11_INPUT_ELEMENT_DESC inputElements[2] = {};
-
-	// Set up the first element - a position, which is 3 float values
-	inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;				// Most formats are described as color channels; really it just means "Three 32-bit floats"
-	inputElements[0].SemanticName = "POSITION";							// This is "POSITION" - needs to match the semantics in our vertex shader input!
-	inputElements[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// How far into the vertex is this?  Assume it's after the previous element
-
-	// Set up the second element - a color, which is 4 more float values
-	inputElements[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;			// 4x 32-bit floats
-	inputElements[1].SemanticName = "COLOR";							// Match our vertex shader input!
-	inputElements[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;	// After the previous element
-
-	// Create the input layout, verifying our description against actual shader code
-	device->CreateInputLayout(
-		inputElements,					// An array of descriptions
-		2,								// How many elements in that array
-		shaderBlob->GetBufferPointer(),	// Pointer to the code of a shader that uses this layout
-		shaderBlob->GetBufferSize(),	// Size of the shader code that uses this layout
-		inputLayout.GetAddressOf());	// Address of the resulting ID3D11InputLayout*
-
-
-
-	// Read and create the pixel shader
-	//  - Reusing the same blob here, since we're done with the vert shader code
-	D3DReadFileToBlob(
-		GetFullPathTo_Wide(L"PixelShader.cso").c_str(), // Using a custom helper for file paths
-		&shaderBlob);
-
-	device->CreatePixelShader(
-		shaderBlob->GetBufferPointer(),
-		shaderBlob->GetBufferSize(),
-		0,
-		pixelShader.GetAddressOf());
+	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
+	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"PixelShader.cso").c_str());
 }
-
-
 
 // --------------------------------------------------------
 // Creates the geometry we're going to draw - a single triangle for now
@@ -300,13 +242,6 @@ void Game::Draw(float deltaTime, float totalTime)
 			1,								// how many are we activating? can do multiple at once?
 			constantBufferVS.GetAddressOf() // Array of buffers (or address of one)
 		);
-
-		// Set the vertex and pixel shaders to use for the next Draw() command
-		//  - These don't technically need to be set every frame
-		//  - Once you start applying different shaders to different objects,
-		//    you'll need to swap the current shaders before each draw
-		context->VSSetShader(vertexShader.Get(), 0, 0);
-		context->PSSetShader(pixelShader.Get(), 0, 0);
 
 		// Ensure the pipeline knows how to interpret the data (numbers)
 		// from the vertex buffer.  
