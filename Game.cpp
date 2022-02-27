@@ -79,7 +79,8 @@ void Game::Init()
 void Game::LoadShaders()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
-	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"PixelShader.cso").c_str());
+	pixelShader = //std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"PixelShader.cso").c_str());
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"RandomPixelShader.cso").c_str());
 
 	// thanks to https://harry7557558.github.io/tools/colorpicker.html for having the only 0f-1f picker i could find
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -198,6 +199,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
 		ps->SetFloat4("tint", entity->GetMaterial()->GetTint());
+		ps->SetFloat("noise", 2.5f + cos(totalTime));
 		ps->CopyAllBufferData();
 
 		entity->GetMaterial()->GetVertexShader()->SetShader();
