@@ -33,7 +33,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	camera = std::make_shared<Camera>(0.0f, 0.0f, -4.0f, (float)width / height, 60, 0.01f, 1000.0f);
+	camera = std::make_shared<Camera>(0.0f, 0.0f, -20.0f, (float)width / height, 60, 0.01f, 1000.0f);
 }
 
 // --------------------------------------------------------
@@ -98,52 +98,45 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	XMFLOAT3 normals = XMFLOAT3(0, 0, -1);
-	XMFLOAT2 uvs = XMFLOAT2(0, 0);
-
-	Vertex verts1[] = {
-		{ XMFLOAT3(+0.00f, +0.00f, +0.25f), normals, uvs },
-		{ XMFLOAT3(-0.25f, -0.25f, -0.25f), normals, uvs },
-		{ XMFLOAT3(+0.00f, +0.25f, -0.25f), normals, uvs },
-		{ XMFLOAT3(+0.25f, -0.25f, -0.25f), normals, uvs },
-	};
-	unsigned int ind1[] = { 0,1,2 , 0,2,3 , 0,3,1 , 3,2,1 };
-
-	Vertex verts2[] = {
-		{ XMFLOAT3(-0.75f, +0.50f, +0.00f), normals, uvs },
-		{ XMFLOAT3(-0.50f, +0.50f, +0.00f), normals, uvs },
-		{ XMFLOAT3(-0.50f, +0.20f, +0.00f), normals, uvs },
-		{ XMFLOAT3(-0.75f, +0.20f, +0.00f), normals, uvs },
-	};
-	unsigned int ind2[] = { 0,1,2, 0,2,3 , 3,2,0 , 2,1,0 };
-
-	Vertex verts3[] = {
-		{ XMFLOAT3(+0.00f, +0.30f, +0.15f), normals, uvs },
-		{ XMFLOAT3(+0.30f, +0.15f, +0.00f), normals, uvs },
-		{ XMFLOAT3(+0.30f, -0.15f, +0.00f), normals, uvs },
-		{ XMFLOAT3(+0.00f, -0.30f, +0.15f), normals, uvs },
-		{ XMFLOAT3(-0.30f, -0.15f, +0.00f), normals, uvs },
-		{ XMFLOAT3(-0.30f, +0.15f, +0.00f), normals, uvs },
-	};
-	unsigned int ind3[] = { 0,1,5 , 1,2,5 , 2,3,4 , 2,4,5 , 5,4,2 , 4,3,2 , 5,2,1 , 5,1,0 };
-
+	
 	shapes = {
-		std::make_shared<Mesh>(verts1, 4, ind1, 12, device, context),
-		std::make_shared<Mesh>(verts2, 4, ind2, 12, device, context),
-		std::make_shared<Mesh>(verts3, 6, ind3, 24, device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/cube.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/cylinder.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/helix.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/quad.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/sphere.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/torus.obj").c_str(),
+			device, context),
 	};
 
 	entities = {
 		std::make_shared<Entity>(materials[0], shapes[0]),
-		std::make_shared<Entity>(materials[1], shapes[0]),
-		std::make_shared<Entity>(materials[2], shapes[0]),
-		std::make_shared<Entity>(materials[0], shapes[1]),
 		std::make_shared<Entity>(materials[1], shapes[1]),
-		std::make_shared<Entity>(materials[2], shapes[1]),
-		std::make_shared<Entity>(materials[0], shapes[2]),
-		std::make_shared<Entity>(materials[1], shapes[2]),
 		std::make_shared<Entity>(materials[2], shapes[2]),
+		std::make_shared<Entity>(materials[0], shapes[3]),
+		std::make_shared<Entity>(materials[1], shapes[4]),
+		std::make_shared<Entity>(materials[2], shapes[5]),
+		std::make_shared<Entity>(materials[0], shapes[6]),
 	};
+
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
+	}
 }
 
 
@@ -173,23 +166,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		entities[i]->GetTransform()->SetScale(0.2f * (i + 1), 0.2f * (i + 1), 0.2f * (i + 1));
-		entities[i]->GetTransform()->SetRotation(0.1f * (i + 1) * sin(totalTime), 0.1f * (i + 1) * sin(totalTime), 0.1f * (i + 1) * sin(totalTime));
-		// this range uses shapes[0] for testing
-		if (i < 3)
-		{
-			entities[i]->GetTransform()->SetPosition(tan((double)totalTime * ((double)i + (double)1)) * 0.1f, sin(totalTime) * 0.1f, (double)i * 0.1f);
-		}
-		// this range uses shapes[1] for testing
-		else if (i < 6)
-		{
-			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * 0.1f, cos(totalTime) * 0.1f, (double)i * 0.1f);
-		}
-		// this range uses shapes[2] for testing
-		else
-		{
-			entities[i]->GetTransform()->SetPosition(sin((double)totalTime * ((double)i + (double)1)) * cos(totalTime) * 0.1f, 0, (double)i * 0.1f);
-		}
+		entities[i]->GetTransform()->SetRotation(1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime));
 	}
 }
 
