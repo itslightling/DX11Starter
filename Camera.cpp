@@ -95,8 +95,8 @@ void Camera::ReadInput(float _dt)
 	if (input.KeyDown('S')) moveLong -= 1.0f;
 	if (input.KeyDown('D')) moveLat  += 1.0f;
 	if (input.KeyDown('A')) moveLat  -= 1.0f;
-	if (input.KeyDown('E')) moveVert += 1.0f;
-	if (input.KeyDown('Q')) moveVert -= 1.0f;
+	if (input.KeyDown(VK_SPACE)) moveVert += 1.0f;
+	if (input.KeyDown('X')) moveVert -= 1.0f;
 	if (input.KeyDown(VK_SHIFT))   modify *= 2.0f;
 	if (input.KeyDown(VK_CONTROL)) modify /= 2.0f;
 

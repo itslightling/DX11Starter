@@ -33,7 +33,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	camera = std::make_shared<Camera>(0.0f, 0.0f, -1.0f, (float)width / height, 70, 0.01f, 1000.0f);
+	camera = std::make_shared<Camera>(0.0f, 0.0f, -4.0f, (float)width / height, 60, 0.01f, 1000.0f);
 }
 
 // --------------------------------------------------------
