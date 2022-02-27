@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Entity.h"
 #include "SimpleShader.h"
+#include "Material.h"
 #include <DirectXMath.h>
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
 #include <memory>
@@ -42,14 +43,15 @@ private:
 	// Shaders and shader-related constructs
 	std::shared_ptr<SimplePixelShader> pixelShader;
 	std::shared_ptr<SimpleVertexShader> vertexShader;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 
-	// Temporary A2 shapes
+	// A2 shapes
 	std::vector<std::shared_ptr<Mesh>> shapes;
-	// Temporary A4 entities;
+	// A4 entities;
 	std::vector<std::shared_ptr<Entity>> entities;
 	// A5 Camera
 	std::shared_ptr<Camera> camera;
+	// A6 Materials
+	std::vector<std::shared_ptr<Material>> materials;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };

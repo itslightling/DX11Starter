@@ -1,7 +1,6 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "Input.h"
-#include "BufferStructs.h"
 #include "SimpleShader.h"
 
 // Needed for a helper function to read compiled shader files from the hard drive
@@ -67,21 +66,6 @@ void Game::Init()
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// Get size as the next multiple of 16 (instead of hardcoding a size here!)
-	unsigned int size = sizeof(VertexShaderExternalData);
-	// This will work even if your struct size changes.
-	// Adding 15 ensures either go past next multiple of 16, or if size is already a multiple, we almost get to next multiple.
-	// Integer division tells us how many 16's would fit (w/o remainder). Get back to multiple of 16 with multiplication step.
-	size = (size + 15) / 16 * 16;
-	// Describe constant buffer
-	D3D11_BUFFER_DESC cbDesc	= {}; // zero-out
-	cbDesc.BindFlags			= D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.ByteWidth			= size; // must be multiple of 16
-	cbDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
-	cbDesc.Usage				= D3D11_USAGE_DYNAMIC;
-
-	device->CreateBuffer(&cbDesc, 0, constantBufferVS.GetAddressOf());
 }
 
 // --------------------------------------------------------
@@ -96,6 +80,17 @@ void Game::LoadShaders()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"PixelShader.cso").c_str());
+
+	// thanks to https://harry7557558.github.io/tools/colorpicker.html for having the only 0f-1f picker i could find
+	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4 deeppink = XMFLOAT4(1.0f, 0.08f, 0.4f, 1.0f);
+	XMFLOAT4 deepcoral = XMFLOAT4(1.0f, 0.39f, 0.22f, 1.0f);
+
+	materials = {
+		std::make_shared<Material>(white, vertexShader, pixelShader),
+		std::make_shared<Material>(deeppink, vertexShader, pixelShader),
+		std::make_shared<Material>(deepcoral, vertexShader, pixelShader),
+	};
 }
 
 // --------------------------------------------------------
@@ -144,15 +139,15 @@ void Game::CreateBasicGeometry()
 	};
 
 	entities = {
-		std::make_shared<Entity>(shapes[0]),
-		std::make_shared<Entity>(shapes[0]),
-		std::make_shared<Entity>(shapes[0]),
-		std::make_shared<Entity>(shapes[1]),
-		std::make_shared<Entity>(shapes[1]),
-		std::make_shared<Entity>(shapes[1]),
-		std::make_shared<Entity>(shapes[2]),
-		std::make_shared<Entity>(shapes[2]),
-		std::make_shared<Entity>(shapes[2]),
+		std::make_shared<Entity>(materials[0], shapes[0]),
+		std::make_shared<Entity>(materials[1], shapes[0]),
+		std::make_shared<Entity>(materials[2], shapes[0]),
+		std::make_shared<Entity>(materials[0], shapes[1]),
+		std::make_shared<Entity>(materials[1], shapes[1]),
+		std::make_shared<Entity>(materials[2], shapes[1]),
+		std::make_shared<Entity>(materials[0], shapes[2]),
+		std::make_shared<Entity>(materials[1], shapes[2]),
+		std::make_shared<Entity>(materials[2], shapes[2]),
 	};
 }
 
@@ -224,32 +219,15 @@ void Game::Draw(float deltaTime, float totalTime)
 	for (auto entity : entities)
 	{
 		// create constant buffer
-		VertexShaderExternalData vsData;
-		vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
-		vsData.world = entity->GetTransform()->GetWorldMatrix();
-		vsData.view = camera->GetViewMatrix();
-		vsData.projection = camera->GetProjectionMatrix();
+		std::shared_ptr<SimpleVertexShader> vs = entity->GetMaterial()->GetVertexShader();
+		vs->SetFloat4("colorTint", entity->GetMaterial()->GetTint());
+		vs->SetMatrix4x4("world", entity->GetTransform()->GetWorldMatrix());
+		vs->SetMatrix4x4("view", camera->GetViewMatrix());
+		vs->SetMatrix4x4("projection", camera->GetProjectionMatrix());
+		vs->CopyAllBufferData();
 
-		// copy constant buffer to resource
-		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		context->Map(constantBufferVS.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-		memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
-		context->Unmap(constantBufferVS.Get(), 0);
-
-		// bind constant buffer
-		context->VSSetConstantBuffers(
-			0,								// which slot (register) to bind buffer to?
-			1,								// how many are we activating? can do multiple at once?
-			constantBufferVS.GetAddressOf() // Array of buffers (or address of one)
-		);
-
-		// Ensure the pipeline knows how to interpret the data (numbers)
-		// from the vertex buffer.  
-		// - If all of your 3D models use the exact same vertex layout,
-		//    this could simply be done once in Init()
-		// - However, this isn't always the case (but might be for this course)
-		context->IASetInputLayout(inputLayout.Get());
-
+		entity->GetMaterial()->GetVertexShader()->SetShader();
+		entity->GetMaterial()->GetPixelShader()->SetShader();
 		entity->GetMesh()->Draw();
 	}
 
