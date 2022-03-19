@@ -1,8 +1,10 @@
 #pragma once
+
+#include <DirectXMath.h>
+
 #define LIGHT_TYPE_DIRECTIONAL	0
 #define LIGHT_TYPE_POINT		1
 #define LIGHT_TYPE_SPOT			2
-#include <DirectXMath.h>
 
 struct Light
 {
