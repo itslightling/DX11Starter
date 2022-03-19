@@ -11,7 +11,7 @@ cbuffer ExternalData : register(b0)
 	Light directionalLight1;
 }
 
-float calculateSpecular(float3 normal, float3 worldPosition, float3 cameraPosition, float3 direction, float roughness)
+float calculateSpecular(float3 normal, float3 direction, float3 worldPosition, float3 cameraPosition, float roughness)
 {
 	return getSpecular(
 		getView(cameraPosition, worldPosition),
@@ -20,15 +20,22 @@ float calculateSpecular(float3 normal, float3 worldPosition, float3 cameraPositi
 	);
 }
 
+float3 calculateDirectionalLight(Light light, float3 normal, float3 worldPosition, float3 cameraPosition, float roughness, float3 surfaceColor)
+{
+	float3 lightDirection = normalize(light.Direction);
+	float diffuse = getDiffuse(normal, -lightDirection);
+	float specular = calculateSpecular(normal, lightDirection, worldPosition, cameraPosition, roughness);
+
+	return (diffuse * surfaceColor + specular) * light.Intensity * light.Color;
+}
+
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
-	float3 directionalLight1Dir = normalize(-directionalLight1.Direction);
 
-	float diffuse = getDiffuse(input.normal, directionalLight1Dir);
-	float specular = calculateSpecular(input.normal, input.worldPosition, cameraPosition, directionalLight1Dir, roughness);
-
-	float3 final = (diffuse * directionalLight1.Color * tint) + (ambient * tint) + specular;
+	float3 light = calculateDirectionalLight(directionalLight1, input.normal, input.worldPosition, cameraPosition, roughness, tint);
+	float3 ambientTint = ambient * tint;
+	float3 final = light + ambientTint;
 
 	return float4(final, 1);
 }

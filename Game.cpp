@@ -179,7 +179,7 @@ void Game::Update(float deltaTime, float totalTime)
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetRotation(1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime));
-		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.5f);
+		entities[i]->GetMaterial()->SetRoughness(sin(totalTime * 4) * 0.5f + 0.49f);
 	}
 }
 
