@@ -7,6 +7,7 @@
 
 #define MAX_SPECULAR_EXPONENT 256.0f
 
+// Struct representing the data stored in the Lights.h struct Light
 struct Light
 {
 	int		Type;
@@ -54,7 +55,7 @@ struct VertexShaderInput
     //  v    v                v
     float3 localPosition	: POSITION;
     float3 normal			: NORMAL;
-    float2 uv				: UV;
+    float2 uv				: TEXCOORD;
 };
 
 /// BEGIN THIRD PARTY ///

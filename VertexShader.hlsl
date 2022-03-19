@@ -3,9 +3,9 @@
 cbuffer ExternalData : register(b0)
 {
 	matrix world;
+	matrix worldInvTranspose;
 	matrix view;
 	matrix projection;
-	matrix worldInvTranspose;
 }
 
 // --------------------------------------------------------
@@ -21,7 +21,7 @@ VertexToPixel main( VertexShaderInput input )
 	VertexToPixel output;
 
 	// Convert vertex to world view projection
-	matrix worldViewProjection = mul(mul(projection, view), world);
+	matrix worldViewProjection = mul(projection, mul(view, world));
 
 	// Here we're essentially passing the input position directly through to the next
 	// stage (rasterizer), though it needs to be a 4-component vector now.  
@@ -39,7 +39,7 @@ VertexToPixel main( VertexShaderInput input )
 	output.uv = input.uv;
 
 	// Pass normal and world position throuh
-	output.normal = mul((float3x3)worldInvTranspose, input.normal);
+	output.normal = normalize(mul((float3x3)worldInvTranspose, input.normal));
 	output.worldPosition = mul(world, float4(input.localPosition, 1)).xyz;
 
 	// Whatever we return will make its way through the pipeline to the

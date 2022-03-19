@@ -85,14 +85,14 @@ void Game::LoadShaders()
 		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 
 	// thanks to https://harry7557558.github.io/tools/colorpicker.html for having the only 0f-1f picker i could find
-	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	XMFLOAT4 deeppink = XMFLOAT4(1.0f, 0.08f, 0.4f, 1.0f);
-	XMFLOAT4 deepcoral = XMFLOAT4(1.0f, 0.39f, 0.22f, 1.0f);
+	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	XMFLOAT3 deeppink = XMFLOAT3(1.0f, 0.08f, 0.4f);
+	XMFLOAT3 deepcoral = XMFLOAT3(1.0f, 0.39f, 0.22f);
 
 	materials = {
 		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
 	};
 }
 
@@ -100,8 +100,8 @@ void Game::LoadLighting()
 {
 	directionalLight1 = {};
 	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight1.Direction = XMFLOAT3(1, -1, 0);
-	directionalLight1.Color = XMFLOAT3(0.2f, 0.2f, 1.0f);
+	directionalLight1.Direction = XMFLOAT3(1, 0, 0);
+	directionalLight1.Color = XMFLOAT3(1.0f, 0, 0);
 	directionalLight1.Intensity = 1.0f;
 }
 
@@ -206,14 +206,15 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		std::shared_ptr<SimpleVertexShader> vs = entity->GetMaterial()->GetVertexShader();
 		vs->SetMatrix4x4("world", entity->GetTransform()->GetWorldMatrix());
+		vs->SetMatrix4x4("worldInvTranspose", entity->GetTransform()->GetWorldMatrixInverseTranspose());
 		vs->SetMatrix4x4("view", camera->GetViewMatrix());
 		vs->SetMatrix4x4("projection", camera->GetProjectionMatrix());
-		vs->SetMatrix4x4("worldInvTranspose", camera->GetTransform()->GetWorldMatrixInverseTranspose());
 		vs->CopyAllBufferData();
 
 		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
 		ps->SetFloat3("cameraPosition", camera->GetTransform()->GetPosition());
 		ps->SetFloat("roughness", entity->GetMaterial()->GetRoughness());
+		ps->SetFloat3("tint", entity->GetMaterial()->GetTint());
 		ps->SetFloat3("ambient", ambient);
 		ps->SetData("directionalLight1", &directionalLight1, sizeof(Light));
 		ps->CopyAllBufferData();
