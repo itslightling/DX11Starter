@@ -55,7 +55,8 @@ private:
 	// A6 Materials
 	std::vector<std::shared_ptr<Material>> materials;
 	// A7 Lights
-	Light directionalLight1;
+	std::vector<Light> lights;
+	DirectX::XMFLOAT3 ambient;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };

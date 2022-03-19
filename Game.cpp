@@ -98,11 +98,27 @@ void Game::LoadShaders()
 
 void Game::LoadLighting()
 {
-	directionalLight1 = {};
+	ambient = XMFLOAT3(0.05f, 0.05f, 0.20f);
+	Light directionalLight0 = {};
+	directionalLight0.Type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight0.Direction = XMFLOAT3(1, 0, 0);
+	directionalLight0.Color = XMFLOAT3(1, 0, 0);
+	directionalLight0.Intensity = 1;
+	Light directionalLight1 = {};
 	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight1.Direction = XMFLOAT3(1, 0, 0);
-	directionalLight1.Color = XMFLOAT3(1.0f, 0, 0);
-	directionalLight1.Intensity = 1.0f;
+	directionalLight1.Direction = XMFLOAT3(0, -1, 0);
+	directionalLight1.Color = XMFLOAT3(0, 1, 0);
+	directionalLight1.Intensity = 1;
+	Light directionalLight2 = {};
+	directionalLight2.Type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
+	directionalLight2.Color = XMFLOAT3(0, 0, 1);
+	directionalLight2.Intensity = 1;
+	lights = {
+		directionalLight0,
+		directionalLight1,
+		directionalLight2,
+	};
 }
 
 // --------------------------------------------------------
@@ -190,7 +206,6 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	static const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
-	static const DirectX::XMFLOAT3 ambient = XMFLOAT3(0.1f, 0.1f, 0.25f);
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -216,7 +231,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		ps->SetFloat("roughness", entity->GetMaterial()->GetRoughness());
 		ps->SetFloat3("tint", entity->GetMaterial()->GetTint());
 		ps->SetFloat3("ambient", ambient);
-		ps->SetData("directionalLight1", &directionalLight1, sizeof(Light));
+		ps->SetData("lights", &lights[0], sizeof(Light) * (int)lights.size());
 		ps->CopyAllBufferData();
 
 		entity->GetMaterial()->GetVertexShader()->SetShader();

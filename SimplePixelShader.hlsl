@@ -2,13 +2,16 @@
 #include "Helpers.hlsli"
 #include "Lights.hlsli"
 
+// temporary
+#define LIGHT_COUNT 3
+
 cbuffer ExternalData : register(b0)
 {
 	float3 cameraPosition;
 	float roughness;
 	float3 ambient;
 	float3 tint;
-	Light directionalLight1;
+	Light lights[LIGHT_COUNT];
 }
 
 float calculateSpecular(float3 normal, float3 direction, float3 worldPosition, float3 cameraPosition, float roughness)
@@ -33,9 +36,16 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 
-	float3 light = calculateDirectionalLight(directionalLight1, input.normal, input.worldPosition, cameraPosition, roughness, tint);
-	float3 ambientTint = ambient * tint;
-	float3 final = light + ambientTint;
+	float3 light = ambient * tint;
+	for (int i = 0; i < LIGHT_COUNT; i++)
+	{
+		switch (lights[i].Type)
+		{
+		case LIGHT_TYPE_DIRECTIONAL:
+			light += calculateDirectionalLight(lights[i], input.normal, input.worldPosition, cameraPosition, roughness, tint);
+			break;
+		}
+	}
 
-	return float4(final, 1);
+	return float4(light, 1);
 }
