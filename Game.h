@@ -6,6 +6,7 @@
 #include "Entity.h"
 #include "SimpleShader.h"
 #include "Material.h"
+#include "Lights.h"
 #include <DirectXMath.h>
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
 #include <memory>
@@ -33,6 +34,7 @@ private:
 
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
+	void LoadLighting();
 	void CreateBasicGeometry();
 
 	// Note the usage of ComPtr below
@@ -52,6 +54,9 @@ private:
 	std::shared_ptr<Camera> camera;
 	// A6 Materials
 	std::vector<std::shared_ptr<Material>> materials;
+	// A7 Lights
+	std::vector<Light> lights;
+	DirectX::XMFLOAT3 ambient;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };

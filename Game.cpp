@@ -60,6 +60,7 @@ void Game::Init()
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
+	LoadLighting();
 	CreateBasicGeometry();
 	
 	// Tell the input assembler stage of the pipeline what kind of
@@ -80,17 +81,57 @@ void Game::LoadShaders()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
 	pixelShader = //std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"PixelShader.cso").c_str());
-		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"RandomPixelShader.cso").c_str());
+		//std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"RandomPixelShader.cso").c_str());
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 
 	// thanks to https://harry7557558.github.io/tools/colorpicker.html for having the only 0f-1f picker i could find
-	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	XMFLOAT4 deeppink = XMFLOAT4(1.0f, 0.08f, 0.4f, 1.0f);
-	XMFLOAT4 deepcoral = XMFLOAT4(1.0f, 0.39f, 0.22f, 1.0f);
+	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	XMFLOAT3 deeppink = XMFLOAT3(1.0f, 0.08f, 0.4f);
+	XMFLOAT3 deepcoral = XMFLOAT3(1.0f, 0.39f, 0.22f);
 
 	materials = {
-		std::make_shared<Material>(white, vertexShader, pixelShader),
-		std::make_shared<Material>(deeppink, vertexShader, pixelShader),
-		std::make_shared<Material>(deepcoral, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
+	};
+}
+
+void Game::LoadLighting()
+{
+	ambient = XMFLOAT3(0.05f, 0.05f, 0.20f);
+	Light directionalLight0 = {};
+	directionalLight0.Type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight0.Direction = XMFLOAT3(1, 0, 0);
+	directionalLight0.Color = XMFLOAT3(1, 0, 0);
+	directionalLight0.Intensity = 1;
+	Light directionalLight1 = {};
+	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight1.Direction = XMFLOAT3(0, -1, 0);
+	directionalLight1.Color = XMFLOAT3(0, 1, 0);
+	directionalLight1.Intensity = 1;
+	Light directionalLight2 = {};
+	directionalLight2.Type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
+	directionalLight2.Color = XMFLOAT3(0, 0, 1);
+	directionalLight2.Intensity = 1;
+	Light pointLight0 = {};
+	pointLight0.Type = LIGHT_TYPE_POINT;
+	pointLight0.Position = XMFLOAT3(-2, -2, 0);
+	pointLight0.Color = XMFLOAT3(1, 1, 0);
+	pointLight0.Intensity = 1;
+	pointLight0.Range = 10;
+	Light pointLight1 = {};
+	pointLight1.Type = LIGHT_TYPE_POINT;
+	pointLight1.Position = XMFLOAT3(2, 2, 0);
+	pointLight1.Color = XMFLOAT3(0, 1, 1);
+	pointLight1.Intensity = 1;
+	pointLight1.Range = 10;
+	lights = {
+		directionalLight0,
+		directionalLight1,
+		directionalLight2,
+		pointLight0,
+		pointLight1,
 	};
 }
 
@@ -111,26 +152,26 @@ void Game::CreateBasicGeometry()
 			GetFullPathTo("Assets/Models/helix.obj").c_str(),
 			device, context),
 		std::make_shared<Mesh>(
-			GetFullPathTo("Assets/Models/quad.obj").c_str(),
-			device, context),
-		std::make_shared<Mesh>(
-			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
-			device, context),
-		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/sphere.obj").c_str(),
 			device, context),
 		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/torus.obj").c_str(),
 			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/quad.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
+			device, context),
 	};
 
 	entities = {
 		std::make_shared<Entity>(materials[0], shapes[0]),
-		std::make_shared<Entity>(materials[1], shapes[1]),
-		std::make_shared<Entity>(materials[2], shapes[2]),
+		std::make_shared<Entity>(materials[0], shapes[1]),
+		std::make_shared<Entity>(materials[0], shapes[2]),
 		std::make_shared<Entity>(materials[0], shapes[3]),
-		std::make_shared<Entity>(materials[1], shapes[4]),
-		std::make_shared<Entity>(materials[2], shapes[5]),
+		std::make_shared<Entity>(materials[0], shapes[4]),
+		std::make_shared<Entity>(materials[0], shapes[5]),
 		std::make_shared<Entity>(materials[0], shapes[6]),
 	};
 
@@ -168,6 +209,7 @@ void Game::Update(float deltaTime, float totalTime)
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetRotation(1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime));
+		entities[i]->GetMaterial()->SetRoughness(sin(totalTime * 4) * 0.5f + 0.49f);
 	}
 }
 
@@ -193,13 +235,17 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		std::shared_ptr<SimpleVertexShader> vs = entity->GetMaterial()->GetVertexShader();
 		vs->SetMatrix4x4("world", entity->GetTransform()->GetWorldMatrix());
+		vs->SetMatrix4x4("worldInvTranspose", entity->GetTransform()->GetWorldMatrixInverseTranspose());
 		vs->SetMatrix4x4("view", camera->GetViewMatrix());
 		vs->SetMatrix4x4("projection", camera->GetProjectionMatrix());
 		vs->CopyAllBufferData();
 
 		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
-		ps->SetFloat4("tint", entity->GetMaterial()->GetTint());
-		ps->SetFloat("noise", 2.5f + cos(totalTime));
+		ps->SetFloat3("cameraPosition", camera->GetTransform()->GetPosition());
+		ps->SetFloat("roughness", entity->GetMaterial()->GetRoughness());
+		ps->SetFloat3("tint", entity->GetMaterial()->GetTint());
+		ps->SetFloat3("ambient", ambient);
+		ps->SetData("lights", &lights[0], sizeof(Light) * (int)lights.size());
 		ps->CopyAllBufferData();
 
 		entity->GetMaterial()->GetVertexShader()->SetShader();

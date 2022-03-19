@@ -86,6 +86,9 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Lights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -95,6 +98,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="RandomPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SimplePixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -120,5 +126,19 @@
     <CopyFileToFolders Include="Assets\Models\torus.obj">
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Helpers.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ThirdPartyFunctions.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Defines.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Lights.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
