@@ -293,7 +293,10 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Includes.hlsli" />
+    <None Include="Helpers.hlsli" />
+    <None Include="Defines.hlsli" />
+    <None Include="Lights.hlsli" />
+    <None Include="ThirdPartyFunctions.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

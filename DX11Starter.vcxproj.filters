@@ -128,7 +128,16 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Includes.hlsli">
+    <None Include="Helpers.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ThirdPartyFunctions.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Defines.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Lights.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

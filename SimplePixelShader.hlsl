@@ -1,4 +1,5 @@
-#include "Includes.hlsli"
+#include "Defines.hlsli"
+#include "Lights.hlsli"
 
 cbuffer ExternalData : register(b0)
 {
