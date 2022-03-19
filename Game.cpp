@@ -180,6 +180,7 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	static const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	static const DirectX::XMFLOAT3 ambient = XMFLOAT3(0.1f, 0.1f, 0.25f);
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -202,6 +203,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
 		ps->SetFloat3("cameraPosition", camera->GetTransform()->GetPosition());
 		ps->SetFloat("roughness", entity->GetMaterial()->GetRoughness());
+		ps->SetFloat3("ambient", ambient);
 		ps->CopyAllBufferData();
 
 		entity->GetMaterial()->GetVertexShader()->SetShader();
