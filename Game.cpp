@@ -80,7 +80,8 @@ void Game::LoadShaders()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
 	pixelShader = //std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"PixelShader.cso").c_str());
-		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"RandomPixelShader.cso").c_str());
+		//std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"RandomPixelShader.cso").c_str());
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 
 	// thanks to https://harry7557558.github.io/tools/colorpicker.html for having the only 0f-1f picker i could find
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -88,9 +89,9 @@ void Game::LoadShaders()
 	XMFLOAT4 deepcoral = XMFLOAT4(1.0f, 0.39f, 0.22f, 1.0f);
 
 	materials = {
-		std::make_shared<Material>(white, vertexShader, pixelShader),
-		std::make_shared<Material>(deeppink, vertexShader, pixelShader),
-		std::make_shared<Material>(deepcoral, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
 	};
 }
 
@@ -168,6 +169,7 @@ void Game::Update(float deltaTime, float totalTime)
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetRotation(1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime));
+		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.5f);
 	}
 }
 
@@ -198,8 +200,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		vs->CopyAllBufferData();
 
 		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
-		ps->SetFloat4("tint", entity->GetMaterial()->GetTint());
-		ps->SetFloat("noise", 2.5f + cos(totalTime));
+		ps->SetFloat3("cameraPosition", camera->GetTransform()->GetPosition());
+		ps->SetFloat("roughness", entity->GetMaterial()->GetRoughness());
 		ps->CopyAllBufferData();
 
 		entity->GetMaterial()->GetVertexShader()->SetShader();
