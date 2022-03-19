@@ -31,4 +31,11 @@ float getDiffuse(float3 normal, float3 direction)
 	return saturate(dot(normal, direction));
 }
 
+float getAttenuation(float3 pointPosition, float3 worldPosition, float3 range)
+{
+	float dist = distance(pointPosition, worldPosition);
+	float attn = saturate(1.0f - (dist * dist / (range * range)));
+	return attn * attn;
+}
+
 #endif

@@ -91,8 +91,8 @@ void Game::LoadShaders()
 
 	materials = {
 		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
 	};
 }
 
@@ -114,10 +114,24 @@ void Game::LoadLighting()
 	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
 	directionalLight2.Color = XMFLOAT3(0, 0, 1);
 	directionalLight2.Intensity = 1;
+	Light pointLight0 = {};
+	pointLight0.Type = LIGHT_TYPE_POINT;
+	pointLight0.Position = XMFLOAT3(-2, -2, 0);
+	pointLight0.Color = XMFLOAT3(1, 1, 0);
+	pointLight0.Intensity = 1;
+	pointLight0.Range = 10;
+	Light pointLight1 = {};
+	pointLight1.Type = LIGHT_TYPE_POINT;
+	pointLight1.Position = XMFLOAT3(2, 2, 0);
+	pointLight1.Color = XMFLOAT3(0, 1, 1);
+	pointLight1.Intensity = 1;
+	pointLight1.Range = 10;
 	lights = {
 		directionalLight0,
 		directionalLight1,
 		directionalLight2,
+		pointLight0,
+		pointLight1,
 	};
 }
 
@@ -138,26 +152,26 @@ void Game::CreateBasicGeometry()
 			GetFullPathTo("Assets/Models/helix.obj").c_str(),
 			device, context),
 		std::make_shared<Mesh>(
-			GetFullPathTo("Assets/Models/quad.obj").c_str(),
-			device, context),
-		std::make_shared<Mesh>(
-			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
-			device, context),
-		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/sphere.obj").c_str(),
 			device, context),
 		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/torus.obj").c_str(),
 			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/quad.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
+			device, context),
 	};
 
 	entities = {
 		std::make_shared<Entity>(materials[0], shapes[0]),
-		std::make_shared<Entity>(materials[1], shapes[1]),
-		std::make_shared<Entity>(materials[2], shapes[2]),
+		std::make_shared<Entity>(materials[0], shapes[1]),
+		std::make_shared<Entity>(materials[0], shapes[2]),
 		std::make_shared<Entity>(materials[0], shapes[3]),
-		std::make_shared<Entity>(materials[1], shapes[4]),
-		std::make_shared<Entity>(materials[2], shapes[5]),
+		std::make_shared<Entity>(materials[0], shapes[4]),
+		std::make_shared<Entity>(materials[0], shapes[5]),
 		std::make_shared<Entity>(materials[0], shapes[6]),
 	};
 

@@ -3,7 +3,7 @@
 #include "Lights.hlsli"
 
 // temporary
-#define LIGHT_COUNT 3
+#define LIGHT_COUNT 5
 
 cbuffer ExternalData : register(b0)
 {
@@ -32,6 +32,16 @@ float3 calculateDirectionalLight(Light light, float3 normal, float3 worldPositio
 	return (diffuse * surfaceColor + specular) * light.Intensity * light.Color;
 }
 
+float3 calculatePointLight(Light light, float3 normal, float3 worldPosition, float3 cameraPosition, float roughness, float3 surfaceColor)
+{
+	float3 lightDirection = normalize(worldPosition - light.Position);
+	float attenuation = getAttenuation(light.Position, worldPosition, light.Range);
+	float diffuse = getDiffuse(normal, -lightDirection);
+	float specular = calculateSpecular(normal, lightDirection, worldPosition, cameraPosition, roughness);
+
+	return (diffuse * surfaceColor + specular) * attenuation * light.Intensity * light.Color;
+}
+
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
@@ -43,6 +53,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 		{
 		case LIGHT_TYPE_DIRECTIONAL:
 			light += calculateDirectionalLight(lights[i], input.normal, input.worldPosition, cameraPosition, roughness, tint);
+			break;
+		case LIGHT_TYPE_POINT:
+			light += calculatePointLight(lights[i], input.normal, input.worldPosition, cameraPosition, roughness, tint);
 			break;
 		}
 	}
