@@ -60,6 +60,7 @@ void Game::Init()
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
+	LoadLighting();
 	CreateBasicGeometry();
 	
 	// Tell the input assembler stage of the pipeline what kind of
@@ -93,6 +94,15 @@ void Game::LoadShaders()
 		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
 		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
 	};
+}
+
+void Game::LoadLighting()
+{
+	directionalLight1 = {};
+	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
+	directionalLight1.Direction = XMFLOAT3(1, -1, 0);
+	directionalLight1.Color = XMFLOAT3(0.2f, 0.2f, 1.0f);
+	directionalLight1.Intensity = 1.0f;
 }
 
 // --------------------------------------------------------
@@ -205,6 +215,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		ps->SetFloat3("cameraPosition", camera->GetTransform()->GetPosition());
 		ps->SetFloat("roughness", entity->GetMaterial()->GetRoughness());
 		ps->SetFloat3("ambient", ambient);
+		ps->SetData("directionalLight1", &directionalLight1, sizeof(Light));
 		ps->CopyAllBufferData();
 
 		entity->GetMaterial()->GetVertexShader()->SetShader();
