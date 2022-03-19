@@ -7,7 +7,8 @@ cbuffer ExternalData : register(b0)
 	float3 ambient;
 }
 
-float4 main() : SV_TARGET
+float4 main(VertexToPixel input) : SV_TARGET
 {
-	return float4(ambient.rgb, 1);
+	input.normal = normalize(input.normal);
+	return float4(input.normal, 1);
 }

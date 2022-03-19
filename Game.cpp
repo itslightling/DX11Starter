@@ -198,6 +198,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		vs->SetMatrix4x4("world", entity->GetTransform()->GetWorldMatrix());
 		vs->SetMatrix4x4("view", camera->GetViewMatrix());
 		vs->SetMatrix4x4("projection", camera->GetProjectionMatrix());
+		vs->SetMatrix4x4("worldInvTranspose", camera->GetTransform()->GetWorldMatrixInverseTranspose());
 		vs->CopyAllBufferData();
 
 		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
