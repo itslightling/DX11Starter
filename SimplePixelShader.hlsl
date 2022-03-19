@@ -14,6 +14,7 @@ cbuffer ExternalData : register(b0)
 	Light lights[LIGHT_COUNT];
 }
 
+// Gets the specular value for any light
 float calculateSpecular(float3 normal, float3 direction, float3 worldPosition, float3 cameraPosition, float roughness)
 {
 	return getSpecular(
@@ -23,6 +24,7 @@ float calculateSpecular(float3 normal, float3 direction, float3 worldPosition, f
 	);
 }
 
+// Gets the RGB value of a pixel with a directional light
 float3 calculateDirectionalLight(Light light, float3 normal, float3 worldPosition, float3 cameraPosition, float roughness, float3 surfaceColor)
 {
 	float3 lightDirection = normalize(light.Direction);
@@ -32,6 +34,7 @@ float3 calculateDirectionalLight(Light light, float3 normal, float3 worldPositio
 	return (diffuse * surfaceColor + specular) * light.Intensity * light.Color;
 }
 
+// Gets the RGB value of a pixel with a point light
 float3 calculatePointLight(Light light, float3 normal, float3 worldPosition, float3 cameraPosition, float roughness, float3 surfaceColor)
 {
 	float3 lightDirection = normalize(worldPosition - light.Position);
@@ -42,11 +45,15 @@ float3 calculatePointLight(Light light, float3 normal, float3 worldPosition, flo
 	return (diffuse * surfaceColor + specular) * attenuation * light.Intensity * light.Color;
 }
 
+// shader entry point
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 
+	// start with ambient light and material tint
 	float3 light = ambient * tint;
+
+	// loop through lights
 	for (int i = 0; i < LIGHT_COUNT; i++)
 	{
 		switch (lights[i].Type)
