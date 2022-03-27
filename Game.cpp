@@ -106,19 +106,25 @@ void Game::LoadTextures()
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>
+		deepFloorSpecular,
 		deepFloorAlbedo,
+		floorSpecular,
 		floorAlbedo;
 
 	// taking the preprocessor macro from the demo because I don't like typing
 	#define GetTex(pathToTexture, shaderResourceView) CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(pathToTexture).c_str(), 0, shaderResourceView.GetAddressOf());
 
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", deepFloorSpecular);
 	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", deepFloorAlbedo);
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", floorSpecular);
 	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", floorAlbedo);
 
 	materials[0]->PushSampler("BasicSampler", sampler);
 	materials[0]->PushTexture("Albedo", deepFloorAlbedo);
+	materials[0]->PushTexture("Specular", deepFloorSpecular);
 	materials[1]->PushSampler("BasicSampler", sampler);
 	materials[1]->PushTexture("Albedo", floorAlbedo);
+	materials[1]->PushTexture("Specular", floorSpecular);
 }
 
 void Game::LoadLighting()
@@ -238,7 +244,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		entities[i]->GetTransform()->SetRotation(sin(totalTime / 360) * 360, 0, 0);
+		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
 		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
 	}
 }

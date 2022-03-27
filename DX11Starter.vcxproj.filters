@@ -198,6 +198,12 @@
     <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_bump.png">
       <Filter>Assets\Textures\HQGame</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-deepfloor_specular.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_specular.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <None Include="Helpers.hlsli">
