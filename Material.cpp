@@ -31,8 +31,9 @@ void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, 
 	pixelShader->SetFloat("roughness", GetRoughness());
 	pixelShader->SetFloat2("scale", GetUVScale());
 	pixelShader->SetFloat2("offset", GetUVOffset());
-	pixelShader->SetFloat3("tint", GetTint());
 	pixelShader->SetFloat3("ambient", _ambient);
+	pixelShader->SetFloat("emitAmount", GetEmitAmount());
+	pixelShader->SetFloat3("tint", GetTint());
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
 	pixelShader->CopyAllBufferData();
 	pixelShader->SetShader();
@@ -65,6 +66,11 @@ DirectX::XMFLOAT2 Material::GetUVOffset()
 float Material::GetRoughness()
 {
 	return roughness;
+}
+
+float Material::GetEmitAmount()
+{
+	return emitAmount;
 }
 
 std::shared_ptr<SimpleVertexShader> Material::GetVertexShader()
@@ -106,6 +112,11 @@ void Material::SetRoughness(float _roughness)
 	{
 		roughness = _roughness;
 	}
+}
+
+void Material::SetEmitAmount(float _emit)
+{
+	emitAmount = _emit;
 }
 
 void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader)

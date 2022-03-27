@@ -12,12 +12,14 @@ cbuffer ExternalData : register(b0)
 	float2 offset;
 	float2 scale;
 	float3 ambient;
+	float emitAmount;
 	float3 tint;
 	Light lights[LIGHT_COUNT];
 }
 
 Texture2D Albedo : register(t0);
 Texture2D Specular : register(t1);
+Texture2D Emissive : register(t2);
 SamplerState BasicSampler : register(s0);
 
 // Gets the specular value for any light
@@ -63,6 +65,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float4 albedo = Albedo.Sample(BasicSampler, input.uv).rgba;
 	float specular = Specular.Sample(BasicSampler, input.uv).r;
+	float3 emit = Emissive.Sample(BasicSampler, input.uv).rgb;
 	float3 surface = albedo.rgb * tint;
 	float3 light = ambient * surface;
 
@@ -80,5 +83,5 @@ float4 main(VertexToPixel input) : SV_TARGET
 		}
 	}
 
-	return float4(light, albedo.a);
+	return float4(light + (emit * emitAmount), albedo.a);
 }

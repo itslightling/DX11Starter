@@ -27,6 +27,7 @@ public:
 	DirectX::XMFLOAT2						GetUVScale();
 	DirectX::XMFLOAT2						GetUVOffset();
 	float									GetRoughness();
+	float									GetEmitAmount();
 	std::shared_ptr<SimpleVertexShader>		GetVertexShader();
 	std::shared_ptr<SimplePixelShader>		GetPixelShader();
 
@@ -34,6 +35,7 @@ public:
 	void									SetUVScale(DirectX::XMFLOAT2 _scale);
 	void									SetUVOffset(DirectX::XMFLOAT2 _offset);
 	void									SetRoughness(float _roughness);
+	void									SetEmitAmount(float _emit);
 	void									SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader);
 	void									SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader);
 
@@ -43,6 +45,7 @@ public:
 private:
 	DirectX::XMFLOAT3						tint;
 	float									roughness;
+	float									emitAmount;
 	DirectX::XMFLOAT2						uvScale;
 	DirectX::XMFLOAT2						uvOffset;
 	std::shared_ptr<SimpleVertexShader>		vertexShader;
