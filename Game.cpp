@@ -7,6 +7,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #include <d3dcompiler.h>
 #include <iostream>
+#include "WICTextureLoader.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -60,6 +61,7 @@ void Game::Init()
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
+	LoadTextures();
 	LoadLighting();
 	CreateBasicGeometry();
 	
@@ -91,6 +93,19 @@ void Game::LoadShaders()
 		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
 		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
 	};
+}
+
+void Game::LoadTextures()
+{
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>
+		deepFloorAlbedo,
+		floorAlbedo;
+
+	// taking the preprocessor macro from the demo because I don't like typing
+	#define GetTex(pathToTexture, shaderResourceView) CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(pathToTexture).c_str(), 0, shaderResourceView.GetAddressOf());
+
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", deepFloorAlbedo);
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", floorAlbedo);
 }
 
 void Game::LoadLighting()
