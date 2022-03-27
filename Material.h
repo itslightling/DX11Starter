@@ -24,11 +24,15 @@ public:
 												std::vector<Light> _lights);
 
 	DirectX::XMFLOAT3						GetTint();
+	DirectX::XMFLOAT2						GetUVScale();
+	DirectX::XMFLOAT2						GetUVOffset();
 	float									GetRoughness();
 	std::shared_ptr<SimpleVertexShader>		GetVertexShader();
 	std::shared_ptr<SimplePixelShader>		GetPixelShader();
 
 	void									SetTint(DirectX::XMFLOAT3 _tint);
+	void									SetUVScale(DirectX::XMFLOAT2 _scale);
+	void									SetUVOffset(DirectX::XMFLOAT2 _offset);
 	void									SetRoughness(float _roughness);
 	void									SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader);
 	void									SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader);
@@ -39,6 +43,8 @@ public:
 private:
 	DirectX::XMFLOAT3						tint;
 	float									roughness;
+	DirectX::XMFLOAT2						uvScale;
+	DirectX::XMFLOAT2						uvOffset;
 	std::shared_ptr<SimpleVertexShader>		vertexShader;
 	std::shared_ptr<SimplePixelShader>		pixelShader;
 

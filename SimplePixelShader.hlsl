@@ -9,6 +9,8 @@ cbuffer ExternalData : register(b0)
 {
 	float3 cameraPosition;
 	float roughness;
+	float2 offset;
+	float2 scale;
 	float3 ambient;
 	float3 tint;
 	Light lights[LIGHT_COUNT];
@@ -54,6 +56,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	// ensure input normals are normalized
 	input.normal = normalize(input.normal);
+	input.uv = input.uv * scale + offset;
 
 	// view only needs calculated once, so pre-calculate here and pass it to lights
 	float3 view = getView(cameraPosition, input.worldPosition);

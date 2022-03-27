@@ -10,6 +10,8 @@ Material::Material(
 	roughness = _roughness;
 	vertexShader = _vertexShader;
 	pixelShader = _pixelShader;
+	uvOffset = DirectX::XMFLOAT2(0, 0);
+	uvScale = DirectX::XMFLOAT2(1, 1);
 }
 
 Material::~Material()
@@ -27,6 +29,8 @@ void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, 
 
 	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
 	pixelShader->SetFloat("roughness", GetRoughness());
+	pixelShader->SetFloat2("scale", GetUVScale());
+	pixelShader->SetFloat2("offset", GetUVOffset());
 	pixelShader->SetFloat3("tint", GetTint());
 	pixelShader->SetFloat3("ambient", _ambient);
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
@@ -48,6 +52,16 @@ DirectX::XMFLOAT3 Material::GetTint()
 	return tint;
 }
 
+DirectX::XMFLOAT2 Material::GetUVScale()
+{
+	return uvScale;
+}
+
+DirectX::XMFLOAT2 Material::GetUVOffset()
+{
+	return uvOffset;
+}
+
 float Material::GetRoughness()
 {
 	return roughness;
@@ -66,6 +80,16 @@ std::shared_ptr<SimplePixelShader> Material::GetPixelShader()
 void Material::SetTint(DirectX::XMFLOAT3 _tint)
 {
 	tint = _tint;
+}
+
+void Material::SetUVScale(DirectX::XMFLOAT2 _scale)
+{
+	uvScale = _scale;
+}
+
+void Material::SetUVOffset(DirectX::XMFLOAT2 _offset)
+{
+	uvOffset = _offset;
 }
 
 void Material::SetRoughness(float _roughness)

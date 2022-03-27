@@ -246,6 +246,8 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
 		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
+		entities[i]->GetMaterial()->SetUVOffset(DirectX::XMFLOAT2(cos(totalTime * 4) * 0.5f + 0.49f, cos(totalTime * 4) * 0.5f + 0.49f));
+		entities[i]->GetMaterial()->SetUVScale(DirectX::XMFLOAT2(sin(totalTime) * 0.5f + 0.49f, sin(totalTime) * 0.5f + 0.49f));
 	}
 }
 
