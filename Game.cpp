@@ -97,6 +97,17 @@ void Game::LoadShaders()
 
 void Game::LoadTextures()
 {
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
+
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampDesc.MaxAnisotropy = 16;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
+
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>
 		deepFloorAlbedo,
 		floorAlbedo;
