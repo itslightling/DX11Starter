@@ -123,38 +123,38 @@ void Game::LoadTextures()
 
 void Game::LoadLighting()
 {
-	ambient = XMFLOAT3(0.05f, 0.05f, 0.20f);
+	ambient = XMFLOAT3(0.5f, 0.5f, 0.5f);
 
 	Light directionalLight0 = {};
 	directionalLight0.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight0.Direction = XMFLOAT3(1, 0, 0);
-	directionalLight0.Color = XMFLOAT3(1, 0, 0);
-	directionalLight0.Intensity = 1;
+	directionalLight0.Color = XMFLOAT3(1, 1, 1);
+	directionalLight0.Intensity = 0.5f;
 
 	Light directionalLight1 = {};
 	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight1.Direction = XMFLOAT3(0, -1, 0);
-	directionalLight1.Color = XMFLOAT3(0, 1, 0);
-	directionalLight1.Intensity = 1;
+	directionalLight1.Color = XMFLOAT3(1, 1, 1);
+	directionalLight1.Intensity = 0.5f;
 
 	Light directionalLight2 = {};
 	directionalLight2.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
-	directionalLight2.Color = XMFLOAT3(0, 0, 1);
-	directionalLight2.Intensity = 1;
+	directionalLight2.Color = XMFLOAT3(1, 1, 1);
+	directionalLight2.Intensity = 0.5f;
 
 	Light pointLight0 = {};
 	pointLight0.Type = LIGHT_TYPE_POINT;
 	pointLight0.Position = XMFLOAT3(-2, -2, 0);
-	pointLight0.Color = XMFLOAT3(1, 1, 0);
-	pointLight0.Intensity = 1;
+	pointLight0.Color = XMFLOAT3(1, 1, 1);
+	pointLight0.Intensity = 0.5f;
 	pointLight0.Range = 10;
 
 	Light pointLight1 = {};
 	pointLight1.Type = LIGHT_TYPE_POINT;
 	pointLight1.Position = XMFLOAT3(2, 2, 0);
-	pointLight1.Color = XMFLOAT3(0, 1, 1);
-	pointLight1.Intensity = 1;
+	pointLight1.Color = XMFLOAT3(1, 1, 1);
+	pointLight1.Intensity = 0.5f;
 	pointLight1.Range = 10;
 
 	lights = {
@@ -199,10 +199,10 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[0], shapes[0]),
 		std::make_shared<Entity>(materials[0], shapes[1]),
 		std::make_shared<Entity>(materials[0], shapes[2]),
-		std::make_shared<Entity>(materials[0], shapes[3]),
-		std::make_shared<Entity>(materials[0], shapes[4]),
-		std::make_shared<Entity>(materials[0], shapes[5]),
-		std::make_shared<Entity>(materials[0], shapes[6]),
+		std::make_shared<Entity>(materials[1], shapes[3]),
+		std::make_shared<Entity>(materials[1], shapes[4]),
+		std::make_shared<Entity>(materials[1], shapes[5]),
+		std::make_shared<Entity>(materials[1], shapes[6]),
 	};
 
 	for (int i = 0; i < entities.size(); ++i)
@@ -238,8 +238,8 @@ void Game::Update(float deltaTime, float totalTime)
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		entities[i]->GetTransform()->SetRotation(1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime));
-		entities[i]->GetMaterial()->SetRoughness(sin(totalTime * 4) * 0.5f + 0.49f);
+		entities[i]->GetTransform()->SetRotation(sin(totalTime / 360) * 360, 0, 0);
+		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
 	}
 }
 
@@ -248,8 +248,8 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	// Background color (Cornflower Blue in this case) for clearing
-	static const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	// Background color for clearing
+	static const float color[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
