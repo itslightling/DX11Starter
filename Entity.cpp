@@ -6,6 +6,12 @@ Entity::Entity(std::shared_ptr<Material> _material, std::shared_ptr<Mesh> _mesh)
 	mesh = _mesh;
 }
 
+void Entity::Draw(std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
+{
+	material->Activate(&transform, _camera, _ambient, _lights);
+	mesh->Draw();
+}
+
 Transform* Entity::GetTransform()
 {
 	return &transform;

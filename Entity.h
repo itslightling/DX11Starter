@@ -12,6 +12,8 @@ public:
 		std::shared_ptr<Material>	_material,
 		std::shared_ptr<Mesh>		_mesh);
 
+	void							Draw(std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights);
+
 	Transform*						GetTransform();
 	std::shared_ptr<Mesh>			GetMesh();
 	std::shared_ptr<Material>		GetMaterial();

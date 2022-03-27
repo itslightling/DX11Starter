@@ -80,11 +80,8 @@ void Game::Init()
 void Game::LoadShaders()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
-	pixelShader = //std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"PixelShader.cso").c_str());
-		//std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"RandomPixelShader.cso").c_str());
-		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
+	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 
-	// thanks to https://harry7557558.github.io/tools/colorpicker.html for having the only 0f-1f picker i could find
 	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	XMFLOAT3 deeppink = XMFLOAT3(1.0f, 0.08f, 0.4f);
 	XMFLOAT3 deepcoral = XMFLOAT3(1.0f, 0.39f, 0.22f);
@@ -99,33 +96,39 @@ void Game::LoadShaders()
 void Game::LoadLighting()
 {
 	ambient = XMFLOAT3(0.05f, 0.05f, 0.20f);
+
 	Light directionalLight0 = {};
 	directionalLight0.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight0.Direction = XMFLOAT3(1, 0, 0);
 	directionalLight0.Color = XMFLOAT3(1, 0, 0);
 	directionalLight0.Intensity = 1;
+
 	Light directionalLight1 = {};
 	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight1.Direction = XMFLOAT3(0, -1, 0);
 	directionalLight1.Color = XMFLOAT3(0, 1, 0);
 	directionalLight1.Intensity = 1;
+
 	Light directionalLight2 = {};
 	directionalLight2.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
 	directionalLight2.Color = XMFLOAT3(0, 0, 1);
 	directionalLight2.Intensity = 1;
+
 	Light pointLight0 = {};
 	pointLight0.Type = LIGHT_TYPE_POINT;
 	pointLight0.Position = XMFLOAT3(-2, -2, 0);
 	pointLight0.Color = XMFLOAT3(1, 1, 0);
 	pointLight0.Intensity = 1;
 	pointLight0.Range = 10;
+
 	Light pointLight1 = {};
 	pointLight1.Type = LIGHT_TYPE_POINT;
 	pointLight1.Position = XMFLOAT3(2, 2, 0);
 	pointLight1.Color = XMFLOAT3(0, 1, 1);
 	pointLight1.Intensity = 1;
 	pointLight1.Range = 10;
+
 	lights = {
 		directionalLight0,
 		directionalLight1,
@@ -140,7 +143,6 @@ void Game::LoadLighting()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	
 	shapes = {
 		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/cube.obj").c_str(),
@@ -233,24 +235,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	for (auto entity : entities)
 	{
-		std::shared_ptr<SimpleVertexShader> vs = entity->GetMaterial()->GetVertexShader();
-		vs->SetMatrix4x4("world", entity->GetTransform()->GetWorldMatrix());
-		vs->SetMatrix4x4("worldInvTranspose", entity->GetTransform()->GetWorldMatrixInverseTranspose());
-		vs->SetMatrix4x4("view", camera->GetViewMatrix());
-		vs->SetMatrix4x4("projection", camera->GetProjectionMatrix());
-		vs->CopyAllBufferData();
-
-		std::shared_ptr<SimplePixelShader> ps = entity->GetMaterial()->GetPixelShader();
-		ps->SetFloat3("cameraPosition", camera->GetTransform()->GetPosition());
-		ps->SetFloat("roughness", entity->GetMaterial()->GetRoughness());
-		ps->SetFloat3("tint", entity->GetMaterial()->GetTint());
-		ps->SetFloat3("ambient", ambient);
-		ps->SetData("lights", &lights[0], sizeof(Light) * (int)lights.size());
-		ps->CopyAllBufferData();
-
-		entity->GetMaterial()->GetVertexShader()->SetShader();
-		entity->GetMaterial()->GetPixelShader()->SetShader();
-		entity->GetMesh()->Draw();
+		entity->Draw(camera, ambient, lights);
 	}
 
 	// Present the back buffer to the user

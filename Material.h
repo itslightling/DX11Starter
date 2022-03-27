@@ -3,6 +3,9 @@
 #include <DirectXMath.h>
 #include <memory>
 #include "SimpleShader.h"
+#include "Transform.h"
+#include "Camera.h"
+#include "Lights.h"
 
 class Material
 {
@@ -13,6 +16,12 @@ public:
 		std::shared_ptr<SimpleVertexShader>	_vertexShader,
 		std::shared_ptr<SimplePixelShader>	_pixelShader);
 	~Material();
+
+	void									Activate(
+												Transform* _transform,
+												std::shared_ptr<Camera> _camera,
+												DirectX::XMFLOAT3 _ambient,
+												std::vector<Light> _lights);
 
 	DirectX::XMFLOAT3						GetTint();
 	float									GetRoughness();

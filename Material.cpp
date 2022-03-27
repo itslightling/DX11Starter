@@ -16,6 +16,24 @@ Material::~Material()
 {
 }
 
+void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
+{
+	vertexShader->SetMatrix4x4("world", _transform->GetWorldMatrix());
+	vertexShader->SetMatrix4x4("worldInvTranspose", _transform->GetWorldMatrixInverseTranspose());
+	vertexShader->SetMatrix4x4("view", _camera->GetViewMatrix());
+	vertexShader->SetMatrix4x4("projection", _camera->GetProjectionMatrix());
+	vertexShader->CopyAllBufferData();
+	vertexShader->SetShader();
+
+	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
+	pixelShader->SetFloat("roughness", GetRoughness());
+	pixelShader->SetFloat3("tint", GetTint());
+	pixelShader->SetFloat3("ambient", _ambient);
+	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
+	pixelShader->CopyAllBufferData();
+	pixelShader->SetShader();
+}
+
 DirectX::XMFLOAT3 Material::GetTint()
 {
 	return tint;
