@@ -123,36 +123,36 @@ void Game::LoadTextures()
 
 void Game::LoadLighting()
 {
-	ambient = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	ambient = XMFLOAT3(0.1f, 0.1f, 0.25f);
 
 	Light directionalLight0 = {};
 	directionalLight0.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight0.Direction = XMFLOAT3(1, 0, 0);
+	directionalLight0.Direction = XMFLOAT3(1, 0.5f, 0.5f);
 	directionalLight0.Color = XMFLOAT3(1, 1, 1);
-	directionalLight0.Intensity = 0.5f;
+	directionalLight0.Intensity = 1.0f;
 
 	Light directionalLight1 = {};
 	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight1.Direction = XMFLOAT3(0, -1, 0);
+	directionalLight1.Direction = XMFLOAT3(-0.25f, -1, 0.75f);
 	directionalLight1.Color = XMFLOAT3(1, 1, 1);
-	directionalLight1.Intensity = 0.5f;
+	directionalLight1.Intensity = 1.0f;
 
 	Light directionalLight2 = {};
 	directionalLight2.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
 	directionalLight2.Color = XMFLOAT3(1, 1, 1);
-	directionalLight2.Intensity = 0.5f;
+	directionalLight2.Intensity = 1.0f;
 
 	Light pointLight0 = {};
 	pointLight0.Type = LIGHT_TYPE_POINT;
-	pointLight0.Position = XMFLOAT3(-2, -2, 0);
+	pointLight0.Position = XMFLOAT3(-1.5f, 0, 0);
 	pointLight0.Color = XMFLOAT3(1, 1, 1);
-	pointLight0.Intensity = 0.5f;
+	pointLight0.Intensity = 1.0f;
 	pointLight0.Range = 10;
 
 	Light pointLight1 = {};
 	pointLight1.Type = LIGHT_TYPE_POINT;
-	pointLight1.Position = XMFLOAT3(2, 2, 0);
+	pointLight1.Position = XMFLOAT3(1.5f, 0, 0);
 	pointLight1.Color = XMFLOAT3(1, 1, 1);
 	pointLight1.Intensity = 0.5f;
 	pointLight1.Range = 10;
