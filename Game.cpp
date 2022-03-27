@@ -85,13 +85,10 @@ void Game::LoadShaders()
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 
 	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	XMFLOAT3 deeppink = XMFLOAT3(1.0f, 0.08f, 0.4f);
-	XMFLOAT3 deepcoral = XMFLOAT3(1.0f, 0.39f, 0.22f);
 
 	materials = {
 		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
 	};
 }
 
@@ -117,6 +114,11 @@ void Game::LoadTextures()
 
 	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", deepFloorAlbedo);
 	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", floorAlbedo);
+
+	materials[0]->PushSampler("BasicSampler", sampler);
+	materials[0]->PushTexture("Albedo", deepFloorAlbedo);
+	materials[1]->PushSampler("BasicSampler", sampler);
+	materials[1]->PushTexture("Albedo", floorAlbedo);
 }
 
 void Game::LoadLighting()

@@ -32,6 +32,15 @@ void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, 
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
 	pixelShader->CopyAllBufferData();
 	pixelShader->SetShader();
+
+	for (auto& t : textures)
+	{
+		pixelShader->SetShaderResourceView(t.first.c_str(), t.second.Get());
+	}
+	for (auto& s : samplers)
+	{
+		pixelShader->SetSamplerState(s.first.c_str(), s.second.Get());
+	}
 }
 
 DirectX::XMFLOAT3 Material::GetTint()
@@ -83,4 +92,14 @@ void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader
 void Material::SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader)
 {
 	pixelShader = _pixelShader;
+}
+
+void Material::PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler)
+{
+	samplers.insert({ _name, _sampler });
+}
+
+void Material::PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _texture)
+{
+	textures.insert({ _name, _texture });
 }
