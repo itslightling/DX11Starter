@@ -33,7 +33,8 @@ private:
 	bool vsync;
 
 	// Initialization helper methods - feel free to customize, combine, etc.
-	void LoadShaders(); 
+	void LoadShaders();
+	void LoadTextures();
 	void LoadLighting();
 	void CreateBasicGeometry();
 

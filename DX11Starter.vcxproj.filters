@@ -22,6 +22,12 @@
     <Filter Include="Assets\Models">
       <UniqueIdentifier>{70d904c1-abb7-4ffe-a6fd-58c67ea6f72b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Textures">
+      <UniqueIdentifier>{073e5c75-8b30-4d03-9cc7-826640bc36be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures\HQGame">
+      <UniqueIdentifier>{347d5c70-73d2-4716-b28c-06526433d151}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -126,6 +132,84 @@
     <CopyFileToFolders Include="Assets\Models\torus.obj">
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\attribution.txt">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\license_CC-BY-SA-4.0.txt">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-blocked.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-carpet.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-deepfloor_albedo.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-deepfloor_bump.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-dirt.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_albedo.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_bump.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-wall_albedo.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-wall_bump.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-water.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-tile.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-vrgrid-a.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-vrgrid-b.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-wall_albedo.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-wall_bump.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-wood.tga">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-deepfloor_albedo.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-deepfloor_bump.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_albedo.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_bump.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-deepfloor_specular.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_specular.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-deepfloor_emissive.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_emissive.png">
+      <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <None Include="Helpers.hlsli">
@@ -140,5 +224,6 @@
     <None Include="Lights.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

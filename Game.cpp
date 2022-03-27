@@ -7,6 +7,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #include <d3dcompiler.h>
 #include <iostream>
+#include "WICTextureLoader.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -60,6 +61,7 @@ void Game::Init()
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 	LoadShaders();
+	LoadTextures();
 	LoadLighting();
 	CreateBasicGeometry();
 	
@@ -83,50 +85,88 @@ void Game::LoadShaders()
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 
 	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	XMFLOAT3 deeppink = XMFLOAT3(1.0f, 0.08f, 0.4f);
-	XMFLOAT3 deepcoral = XMFLOAT3(1.0f, 0.39f, 0.22f);
 
 	materials = {
 		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(deeppink, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(deepcoral, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
 	};
+}
+
+void Game::LoadTextures()
+{
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
+
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampDesc.MaxAnisotropy = 16;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>
+		deepFloorEmissive,
+		deepFloorSpecular,
+		deepFloorAlbedo,
+		floorEmissive,
+		floorSpecular,
+		floorAlbedo;
+
+	// taking the preprocessor macro from the demo because I don't like typing
+	#define GetTex(pathToTexture, shaderResourceView) CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(pathToTexture).c_str(), 0, shaderResourceView.GetAddressOf());
+
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", deepFloorEmissive);
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", deepFloorSpecular);
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", deepFloorAlbedo);
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_emissive.png", floorEmissive);
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", floorSpecular);
+	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", floorAlbedo);
+
+	materials[0]->PushSampler("BasicSampler", sampler);
+	materials[0]->PushTexture("Albedo", deepFloorAlbedo);
+	materials[0]->PushTexture("Specular", deepFloorSpecular);
+	materials[0]->PushTexture("Emissive", deepFloorEmissive);
+	materials[1]->PushSampler("BasicSampler", sampler);
+	materials[1]->PushTexture("Albedo", floorAlbedo);
+	materials[1]->PushTexture("Specular", floorSpecular);
+	materials[1]->PushTexture("Emissive", floorEmissive);
 }
 
 void Game::LoadLighting()
 {
-	ambient = XMFLOAT3(0.05f, 0.05f, 0.20f);
+	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
 
 	Light directionalLight0 = {};
 	directionalLight0.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight0.Direction = XMFLOAT3(1, 0, 0);
-	directionalLight0.Color = XMFLOAT3(1, 0, 0);
-	directionalLight0.Intensity = 1;
+	directionalLight0.Direction = XMFLOAT3(1, 0.5f, 0.5f);
+	directionalLight0.Color = XMFLOAT3(1, 1, 1);
+	directionalLight0.Intensity = 0.5f;
 
 	Light directionalLight1 = {};
 	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight1.Direction = XMFLOAT3(0, -1, 0);
-	directionalLight1.Color = XMFLOAT3(0, 1, 0);
-	directionalLight1.Intensity = 1;
+	directionalLight1.Direction = XMFLOAT3(-0.25f, -1, 0.75f);
+	directionalLight1.Color = XMFLOAT3(1, 1, 1);
+	directionalLight1.Intensity = 0.5f;
 
 	Light directionalLight2 = {};
 	directionalLight2.Type = LIGHT_TYPE_DIRECTIONAL;
 	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
-	directionalLight2.Color = XMFLOAT3(0, 0, 1);
-	directionalLight2.Intensity = 1;
+	directionalLight2.Color = XMFLOAT3(1, 1, 1);
+	directionalLight2.Intensity = 0.5f;
 
 	Light pointLight0 = {};
 	pointLight0.Type = LIGHT_TYPE_POINT;
-	pointLight0.Position = XMFLOAT3(-2, -2, 0);
-	pointLight0.Color = XMFLOAT3(1, 1, 0);
-	pointLight0.Intensity = 1;
+	pointLight0.Position = XMFLOAT3(-1.5f, 0, 0);
+	pointLight0.Color = XMFLOAT3(1, 1, 1);
+	pointLight0.Intensity = 0.5f;
 	pointLight0.Range = 10;
 
 	Light pointLight1 = {};
 	pointLight1.Type = LIGHT_TYPE_POINT;
-	pointLight1.Position = XMFLOAT3(2, 2, 0);
-	pointLight1.Color = XMFLOAT3(0, 1, 1);
-	pointLight1.Intensity = 1;
+	pointLight1.Position = XMFLOAT3(1.5f, 0, 0);
+	pointLight1.Color = XMFLOAT3(1, 1, 1);
+	pointLight1.Intensity = 0.25f;
 	pointLight1.Range = 10;
 
 	lights = {
@@ -171,10 +211,10 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[0], shapes[0]),
 		std::make_shared<Entity>(materials[0], shapes[1]),
 		std::make_shared<Entity>(materials[0], shapes[2]),
-		std::make_shared<Entity>(materials[0], shapes[3]),
-		std::make_shared<Entity>(materials[0], shapes[4]),
-		std::make_shared<Entity>(materials[0], shapes[5]),
-		std::make_shared<Entity>(materials[0], shapes[6]),
+		std::make_shared<Entity>(materials[1], shapes[3]),
+		std::make_shared<Entity>(materials[1], shapes[4]),
+		std::make_shared<Entity>(materials[1], shapes[5]),
+		std::make_shared<Entity>(materials[1], shapes[6]),
 	};
 
 	for (int i = 0; i < entities.size(); ++i)
@@ -210,8 +250,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		entities[i]->GetTransform()->SetRotation(1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime), 1.0f * (i + 1) * sin(totalTime));
-		entities[i]->GetMaterial()->SetRoughness(sin(totalTime * 4) * 0.5f + 0.49f);
+		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
+		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
+		entities[i]->GetMaterial()->SetUVOffset(DirectX::XMFLOAT2(cos(totalTime * 4) * 0.5f + 0.49f, cos(totalTime * 4) * 0.5f + 0.49f));
+		entities[i]->GetMaterial()->SetUVScale(DirectX::XMFLOAT2(sin(totalTime) * 0.5f + 0.49f, sin(totalTime) * 0.5f + 0.49f));
+		entities[i]->GetMaterial()->SetEmitAmount(cos(totalTime) * 0.5f + 0.49f);
 	}
 }
 
@@ -220,8 +263,8 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	// Background color (Cornflower Blue in this case) for clearing
-	static const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	// Background color for clearing
+	static const float color[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME

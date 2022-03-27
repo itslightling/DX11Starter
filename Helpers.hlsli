@@ -10,7 +10,7 @@ float3 getView(float3 cameraPosition, float3 pixelWorldPosition)
 // gets reflection vector, needed per light
 float3 getReflection(float3 direction, float3 normal)
 {
-	return reflect(direction, normal);
+	return reflect(-direction, normal);
 }
 
 // gets specular exponent: (1-roughness) * max
