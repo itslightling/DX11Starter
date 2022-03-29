@@ -105,32 +105,15 @@ void Game::LoadTextures()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>
-		deepFloorEmissive,
-		deepFloorSpecular,
-		deepFloorAlbedo,
-		floorEmissive,
-		floorSpecular,
-		floorAlbedo;
-
-	// taking the preprocessor macro from the demo because I don't like typing
-	#define GetTex(pathToTexture, shaderResourceView) CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(pathToTexture).c_str(), 0, shaderResourceView.GetAddressOf());
-
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", deepFloorEmissive);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", deepFloorSpecular);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", deepFloorAlbedo);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_emissive.png", floorEmissive);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", floorSpecular);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", floorAlbedo);
-
 	materials[0]->PushSampler("BasicSampler", sampler);
-	materials[0]->PushTexture("Albedo", deepFloorAlbedo);
-	materials[0]->PushTexture("Specular", deepFloorSpecular);
-	materials[0]->PushTexture("Emissive", deepFloorEmissive);
+	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+
 	materials[1]->PushSampler("BasicSampler", sampler);
-	materials[1]->PushTexture("Albedo", floorAlbedo);
-	materials[1]->PushTexture("Specular", floorSpecular);
-	materials[1]->PushTexture("Emissive", floorEmissive);
+	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
 }
 
 void Game::LoadLighting()

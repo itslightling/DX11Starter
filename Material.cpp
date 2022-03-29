@@ -129,6 +129,13 @@ void Material::SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader)
 	pixelShader = _pixelShader;
 }
 
+void Material::LoadTexture(const wchar_t* _path, const char* _type, ID3D11Device* _device, ID3D11DeviceContext* _context)
+{
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceView;
+	DirectX::CreateWICTextureFromFile(_device, _context, DXCore::GetFullPathTo_Wide(_path).c_str(), 0, shaderResourceView.GetAddressOf());
+	PushTexture(_type, shaderResourceView);
+}
+
 void Material::PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler)
 {
 	samplers.insert({ _name, _sampler });

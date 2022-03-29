@@ -44,6 +44,13 @@ public:
 	virtual void Update(float deltaTime, float totalTime) = 0;
 	virtual void Draw(float deltaTime, float totalTime) = 0;
 
+	// Helpers for determining the actual path to the executable
+	static std::string GetExePath();
+	static std::wstring GetExePath_Wide();
+
+	static std::string GetFullPathTo(std::string relativeFilePath);
+	static std::wstring GetFullPathTo_Wide(std::wstring relativeFilePath);
+
 protected:
 	HINSTANCE	hInstance;		// The handle to the application
 	HWND		hWnd;			// The handle to the window itself
@@ -69,13 +76,6 @@ protected:
 
 	// Helper function for allocating a console window
 	void CreateConsoleWindow(int bufferLines, int bufferColumns, int windowLines, int windowColumns);
-
-	// Helpers for determining the actual path to the executable
-	std::string GetExePath();
-	std::wstring GetExePath_Wide();
-
-	std::string GetFullPathTo(std::string relativeFilePath);
-	std::wstring GetFullPathTo_Wide(std::wstring relativeFilePath);
 
 
 private:
