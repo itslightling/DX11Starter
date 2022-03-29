@@ -34,6 +34,7 @@ void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, 
 	pixelShader->SetFloat3("ambient", _ambient);
 	pixelShader->SetFloat("emitAmount", GetEmitAmount());
 	pixelShader->SetFloat3("tint", GetTint());
+	pixelShader->SetFloat("lightCount", (int)_lights.size());
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
 	pixelShader->CopyAllBufferData();
 	pixelShader->SetShader();

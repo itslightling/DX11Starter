@@ -152,12 +152,20 @@ void Game::LoadLighting()
 	pointLight1.Intensity = 0.25f;
 	pointLight1.Range = 10;
 
+	Light pointLight2 = {};
+	pointLight2.Type = LIGHT_TYPE_POINT;
+	pointLight2.Position = XMFLOAT3(0, 2, 0);
+	pointLight2.Color = XMFLOAT3(1, 0, 0);
+	pointLight2.Intensity = 0.25f;
+	pointLight2.Range = 10;
+
 	lights = {
 		directionalLight0,
 		directionalLight1,
 		directionalLight2,
 		pointLight0,
 		pointLight1,
+		pointLight2,
 	};
 }
 

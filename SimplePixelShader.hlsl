@@ -2,19 +2,23 @@
 #include "Helpers.hlsli"
 #include "Lights.hlsli"
 
-// temporary
-#define LIGHT_COUNT 5
+#define MAX_LIGHTS 128
 
 cbuffer ExternalData : register(b0)
 {
 	float3 cameraPosition;
 	float roughness;
+
 	float2 offset;
 	float2 scale;
+
 	float3 ambient;
 	float emitAmount;
+
 	float3 tint;
-	Light lights[LIGHT_COUNT];
+	float lightCount;
+
+	Light lights[MAX_LIGHTS];
 }
 
 Texture2D Albedo : register(t0);
@@ -70,7 +74,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 light = ambient * surface;
 
 	// loop through lights
-	for (int i = 0; i < LIGHT_COUNT; i++)
+	for (int i = 0; i < lightCount; i++)
 	{
 		switch (lights[i].Type)
 		{
