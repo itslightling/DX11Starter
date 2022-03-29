@@ -12,6 +12,7 @@ Material::Material(
 	pixelShader = _pixelShader;
 	uvOffset = DirectX::XMFLOAT2(0, 0);
 	uvScale = DirectX::XMFLOAT2(1, 1);
+	emitAmount = 0;
 }
 
 Material::~Material()

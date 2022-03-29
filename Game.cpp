@@ -202,7 +202,7 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[0], shapes[0]),
 		std::make_shared<Entity>(materials[0], shapes[1]),
 		std::make_shared<Entity>(materials[0], shapes[2]),
-		std::make_shared<Entity>(materials[1], shapes[3]),
+		std::make_shared<Entity>(materials[0], shapes[3]),
 		std::make_shared<Entity>(materials[1], shapes[4]),
 		std::make_shared<Entity>(materials[1], shapes[5]),
 		std::make_shared<Entity>(materials[1], shapes[6]),
@@ -211,6 +211,7 @@ void Game::CreateBasicGeometry()
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
+		entities[i]->GetMaterial()->SetEmitAmount((entities.size() - i) * 0.25f);
 	}
 }
 
@@ -242,10 +243,10 @@ void Game::Update(float deltaTime, float totalTime)
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
-		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
-		entities[i]->GetMaterial()->SetUVOffset(DirectX::XMFLOAT2(cos(totalTime * 4) * 0.5f + 0.49f, cos(totalTime * 4) * 0.5f + 0.49f));
-		entities[i]->GetMaterial()->SetUVScale(DirectX::XMFLOAT2(sin(totalTime) * 0.5f + 0.49f, sin(totalTime) * 0.5f + 0.49f));
-		entities[i]->GetMaterial()->SetEmitAmount(cos(totalTime) * 0.5f + 0.49f);
+		//entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
+		//entities[i]->GetMaterial()->SetUVOffset(DirectX::XMFLOAT2(cos(totalTime * 4) * 0.5f + 0.49f, cos(totalTime * 4) * 0.5f + 0.49f));
+		//entities[i]->GetMaterial()->SetUVScale(DirectX::XMFLOAT2(sin(totalTime) * 0.5f + 0.49f, sin(totalTime) * 0.5f + 0.49f));
+		//entities[i]->GetMaterial()->SetEmitAmount(cos(totalTime) * 0.5f + 0.49f);
 	}
 }
 
