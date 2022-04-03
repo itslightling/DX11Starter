@@ -99,22 +99,41 @@ void Game::LoadTextures()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
 
+	demoCubemap = CreateCubemap(
+		device,
+		context,
+		L"Assets/Textures/Skies/planets/right.png",
+		L"Assets/Textures/Skies/planets/left.png",
+		L"Assets/Textures/Skies/planets/up.png",
+		L"Assets/Textures/Skies/planets/down.png",
+		L"Assets/Textures/Skies/planets/front.png",
+		L"Assets/Textures/Skies/planets/back.png"
+	);
+
 	materials[0]->PushSampler("BasicSampler", sampler);
+	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
+	materials[0]->hasReflectionMap = true;
 	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
 
 	materials[1]->PushSampler("BasicSampler", sampler);
+	materials[1]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
+	materials[1]->hasReflectionMap = true;
 	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 
 	materials[2]->PushSampler("BasicSampler", sampler);
+	materials[2]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
+	materials[2]->hasReflectionMap = true;
 	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 
 	materials[3]->PushSampler("BasicSampler", sampler);
+	materials[3]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
+	materials[3]->hasReflectionMap = true;
 	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
@@ -189,16 +208,7 @@ void Game::CreateBasicGeometry()
 			shapes[0],
 			std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
 			std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
-			CreateCubemap(
-				device,
-				context,
-				L"Assets/Textures/Skies/planets/right.png",
-				L"Assets/Textures/Skies/planets/left.png",
-				L"Assets/Textures/Skies/planets/up.png",
-				L"Assets/Textures/Skies/planets/down.png",
-				L"Assets/Textures/Skies/planets/front.png",
-				L"Assets/Textures/Skies/planets/back.png"
-			),
+			demoCubemap,
 			sampler,
 			device
 		);

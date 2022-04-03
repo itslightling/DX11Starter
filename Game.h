@@ -62,6 +62,7 @@ private:
 	// A9 Normalmaps & Cubemaps
 	std::shared_ptr<Sky> skybox;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> demoCubemap;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };

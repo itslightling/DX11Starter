@@ -74,5 +74,14 @@ float4 main(VertexToPixel input) : SV_TARGET
 		}
 	}
 
-	return float4(light + (emit * emitAmount), albedo.a);
+	float3 final = float3(light + (emit * emitAmount));
+
+	if (hasReflectionMap > 0)
+	{
+		float3 reflVec = getReflection(view, input.normal);
+		float3 reflCol = Reflection.Sample(BasicSampler, reflVec).rgba;
+		final = lerp(final, reflCol, getFresnel(input.normal, view, F0_NON_METAL));
+	}
+
+	return float4(final, albedo.a);
 }

@@ -51,11 +51,11 @@ public:
 	void									PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler);
 	void									PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _texture);
 
-private:
 	bool									hasEmissiveMap;
 	bool									hasSpecularMap;
 	bool									hasNormalMap;
 	bool									hasReflectionMap;
+private:
 	DirectX::XMFLOAT3						tint;
 	float									roughness;
 	float									emitAmount;
