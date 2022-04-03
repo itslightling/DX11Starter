@@ -48,7 +48,6 @@ Game::~Game()
 	// we don't need to explicitly clean up those DirectX objects
 	// - If we weren't using smart pointers, we'd need
 	//   to call Release() on each DirectX object created in Game
-
 }
 
 // --------------------------------------------------------
@@ -57,10 +56,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these later
-	LoadShaders();
+	LoadShadersAndMaterials();
 	LoadTextures();
 	LoadLighting();
 	CreateBasicGeometry();
@@ -72,14 +68,9 @@ void Game::Init()
 }
 
 // --------------------------------------------------------
-// Loads shaders from compiled shader object (.cso) files
-// and also created the Input Layout that describes our 
-// vertex data to the rendering pipeline. 
-// - Input Layout creation is done here because it must 
-//    be verified against vertex shader byte code
-// - We'll have that byte code already loaded below
+// Loads shaders from compiled shader object (.cso) files and pushes them to materials
 // --------------------------------------------------------
-void Game::LoadShaders()
+void Game::LoadShadersAndMaterials()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
@@ -92,6 +83,9 @@ void Game::LoadShaders()
 	};
 }
 
+// --------------------------------------------------------
+// Loads textures and pushes them to the loaded materials
+// --------------------------------------------------------
 void Game::LoadTextures()
 {
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
@@ -116,6 +110,9 @@ void Game::LoadTextures()
 	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
 }
 
+// --------------------------------------------------------
+// Instantiates all the lighting in the scene
+// --------------------------------------------------------
 void Game::LoadLighting()
 {
 	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
@@ -195,7 +192,6 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
 
@@ -204,10 +200,6 @@ void Game::Update(float deltaTime, float totalTime)
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
-		//entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
-		//entities[i]->GetMaterial()->SetUVOffset(DirectX::XMFLOAT2(cos(totalTime * 4) * 0.5f + 0.49f, cos(totalTime * 4) * 0.5f + 0.49f));
-		//entities[i]->GetMaterial()->SetUVScale(DirectX::XMFLOAT2(sin(totalTime) * 0.5f + 0.49f, sin(totalTime) * 0.5f + 0.49f));
-		//entities[i]->GetMaterial()->SetEmitAmount(cos(totalTime) * 0.5f + 0.49f);
 	}
 }
 
