@@ -29,6 +29,7 @@ struct VertexShaderInput
 	//  v    v                v
 	float3 localPosition	: POSITION;
 	float3 normal			: NORMAL;
+	float3 tangent			: TANGENT;
 	float2 uv				: TEXCOORD;
 };
 
