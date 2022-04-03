@@ -28,6 +28,15 @@
     <Filter Include="Assets\Textures\HQGame">
       <UniqueIdentifier>{347d5c70-73d2-4716-b28c-06526433d151}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Textures\WithNormals">
+      <UniqueIdentifier>{7476640e-6b46-49e4-a478-c3ce10b2ddca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures\Skies">
+      <UniqueIdentifier>{343d3538-c075-4c73-8ca8-f919b5ba231b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures\Skies\planets">
+      <UniqueIdentifier>{f0ccea00-427b-47f7-8fce-7110b649b668}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -58,6 +67,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sky.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,6 +107,9 @@
     <ClInclude Include="Lights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sky.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -107,6 +122,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="SimplePixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -210,6 +231,51 @@
     <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_emissive.png">
       <Filter>Assets\Textures\HQGame</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cobblestone.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cobblestone_normals.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cobblestone_specular.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cushion.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cushion_normals.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cushion_specular.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\rock.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\rock_normals.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\rock_specular.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\up.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\back.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\down.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\front.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\left.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\right.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <None Include="Helpers.hlsli">
@@ -225,5 +291,8 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="SkyboxDefines.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

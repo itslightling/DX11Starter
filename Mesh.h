@@ -31,6 +31,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>     deviceContext;
 	int                                             countIndex;
 
+	void											CalculateTangents(
+														Vertex*										_verts,
+														int											_numVerts,
+														unsigned int*								_indices,
+														int											_numIndices);
 	void											CreateMesh(
 														Vertex*										_vertices,
 														int                                         _vertexCount,

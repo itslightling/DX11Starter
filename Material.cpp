@@ -13,6 +13,10 @@ Material::Material(
 	uvOffset = DirectX::XMFLOAT2(0, 0);
 	uvScale = DirectX::XMFLOAT2(1, 1);
 	emitAmount = 0;
+	hasEmissiveMap = false;
+	hasSpecularMap = false;
+	hasNormalMap = false;
+	hasReflectionMap = false;
 }
 
 Material::~Material()
@@ -36,6 +40,10 @@ void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, 
 	pixelShader->SetFloat("emitAmount", GetEmitAmount());
 	pixelShader->SetFloat3("tint", GetTint());
 	pixelShader->SetFloat("lightCount", (int)_lights.size());
+	pixelShader->SetInt("hasEmissiveMap", (int)hasEmissiveMap);
+	pixelShader->SetInt("hasSpecularMap", (int)hasSpecularMap);
+	pixelShader->SetInt("hasNormalMap", (int)hasNormalMap);
+	pixelShader->SetInt("hasReflectionMap", (int)hasReflectionMap);
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
 	pixelShader->CopyAllBufferData();
 	pixelShader->SetShader();
@@ -136,6 +144,11 @@ void Material::LoadTexture(const wchar_t* _path, const char* _type, ID3D11Device
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 	DirectX::CreateWICTextureFromFile(_device, _context, DXCore::GetFullPathTo_Wide(_path).c_str(), 0, shaderResourceView.GetAddressOf());
 	PushTexture(_type, shaderResourceView);
+
+	if (_type == TEXTYPE_EMISSIVE) hasEmissiveMap = true;
+	else if (_type == TEXTYPE_SPECULAR) hasSpecularMap = true;
+	else if (_type == TEXTYPE_NORMAL) hasNormalMap = true;
+	else if (_type == TEXTYPE_REFLECTION) hasReflectionMap = true;
 }
 
 void Material::PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler)

@@ -13,6 +13,7 @@ constexpr auto TEXTYPE_ALBEDO = "Albedo";
 constexpr auto TEXTYPE_NORMAL = "Normal";
 constexpr auto TEXTYPE_EMISSIVE = "Emissive";
 constexpr auto TEXTYPE_SPECULAR = "Specular";
+constexpr auto TEXTYPE_REFLECTION = "Reflection";
 
 class Material
 {
@@ -50,6 +51,10 @@ public:
 	void									PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler);
 	void									PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _texture);
 
+	bool									hasEmissiveMap;
+	bool									hasSpecularMap;
+	bool									hasNormalMap;
+	bool									hasReflectionMap;
 private:
 	DirectX::XMFLOAT3						tint;
 	float									roughness;

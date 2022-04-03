@@ -18,58 +18,45 @@ cbuffer ExternalData : register(b0)
 	float3 tint;
 	float lightCount;
 
+	int hasEmissiveMap;
+	int hasSpecularMap;
+	int hasNormalMap;
+	int hasReflectionMap;
+
 	Light lights[MAX_LIGHTS];
 }
 
 Texture2D Albedo : register(t0);
 Texture2D Specular : register(t1);
 Texture2D Emissive : register(t2);
+Texture2D Normal : register(t3);
+TextureCube Reflection : register(t4);
 SamplerState BasicSampler : register(s0);
-
-// Gets the specular value for any light
-float calculateSpecular(float3 normal, float3 direction, float3 view, float roughness)
-{
-	return getSpecular(
-		view,
-		getReflection(direction, normal),
-		getSpecularExponent(roughness, MAX_SPECULAR_EXPONENT)
-	);
-}
-
-// Gets the RGB value of a pixel with a directional light
-float3 calculateDirectionalLight(Light light, float3 normal, float3 view, float roughness, float3 surfaceColor, float specularValue)
-{
-	float3 lightDirection = normalize(light.Direction);
-	float diffuse = getDiffuse(normal, -lightDirection);
-	float specular = calculateSpecular(normal, lightDirection, view, roughness) * specularValue;
-
-	return (diffuse * surfaceColor + specular) * light.Intensity * light.Color;
-}
-
-// Gets the RGB value of a pixel with a point light
-float3 calculatePointLight(Light light, float3 normal, float3 view, float3 worldPosition, float roughness, float3 surfaceColor, float specularValue)
-{
-	float3 lightDirection = normalize(light.Position - worldPosition);
-	float attenuation = getAttenuation(light.Position, worldPosition, light.Range);
-	float diffuse = getDiffuse(normal, lightDirection);
-	float specular = calculateSpecular(normal, lightDirection, view, roughness) * specularValue;
-
-	return (diffuse * surfaceColor + specular) * attenuation * light.Intensity * light.Color;
-}
 
 // shader entry point
 float4 main(VertexToPixel input) : SV_TARGET
 {
 	// ensure input normals are normalized
 	input.normal = normalize(input.normal);
+	input.tangent = normalize(input.tangent);
+	if (hasNormalMap > 0)
+	{
+		float3 unpackedNormal = Normal.Sample(BasicSampler, input.uv).rgb * 2 - 1;
+		float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal));
+		float3 B = cross(T, input.normal);
+		float3x3 TBN = float3x3(T, B, input.normal);
+		input.normal = mul(unpackedNormal, TBN);
+	}
 	input.uv = input.uv * scale + offset;
 
 	// view only needs calculated once, so pre-calculate here and pass it to lights
 	float3 view = getView(cameraPosition, input.worldPosition);
 
 	float4 albedo = Albedo.Sample(BasicSampler, input.uv).rgba;
-	float specular = Specular.Sample(BasicSampler, input.uv).r;
-	float3 emit = Emissive.Sample(BasicSampler, input.uv).rgb;
+	float specular = 1;
+	if (hasSpecularMap > 0) specular = Specular.Sample(BasicSampler, input.uv).r;
+	float3 emit = float3(1, 1, 1);
+	if (hasEmissiveMap > 0) emit = Emissive.Sample(BasicSampler, input.uv).rgb;
 	float3 surface = albedo.rgb * tint;
 	float3 light = ambient * surface;
 
@@ -87,5 +74,14 @@ float4 main(VertexToPixel input) : SV_TARGET
 		}
 	}
 
-	return float4(light + (emit * emitAmount), albedo.a);
+	float3 final = float3(light + (emit * emitAmount));
+
+	if (hasReflectionMap > 0)
+	{
+		float3 reflVec = getReflection(view, input.normal);
+		float3 reflCol = Reflection.Sample(BasicSampler, reflVec).rgba;
+		final = lerp(final, reflCol, getFresnel(input.normal, view, F0_NON_METAL));
+	}
+
+	return float4(final, albedo.a);
 }
