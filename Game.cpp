@@ -80,6 +80,8 @@ void Game::LoadShadersAndMaterials()
 	materials = {
 		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
 		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
 	};
 }
 
@@ -105,9 +107,19 @@ void Game::LoadTextures()
 	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
 
 	materials[1]->PushSampler("BasicSampler", sampler);
-	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
-	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+
+	materials[2]->PushSampler("BasicSampler", sampler);
+	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+
+	materials[3]->PushSampler("BasicSampler", sampler);
+	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 }
 
 // --------------------------------------------------------
@@ -157,19 +169,21 @@ void Game::CreateBasicGeometry()
 	};
 
 	entities = {
-		std::make_shared<Entity>(materials[0], shapes[0]),
-		std::make_shared<Entity>(materials[0], shapes[1]),
-		std::make_shared<Entity>(materials[0], shapes[2]),
-		std::make_shared<Entity>(materials[0], shapes[3]),
+		std::make_shared<Entity>(materials[1], shapes[0]),
+		std::make_shared<Entity>(materials[2], shapes[1]),
+		std::make_shared<Entity>(materials[3], shapes[2]),
+		std::make_shared<Entity>(materials[2], shapes[3]),
 		std::make_shared<Entity>(materials[1], shapes[4]),
-		std::make_shared<Entity>(materials[1], shapes[5]),
-		std::make_shared<Entity>(materials[1], shapes[6]),
+		std::make_shared<Entity>(materials[0], shapes[5]),
+		std::make_shared<Entity>(materials[0], shapes[6]),
 	};
+
+	entities[6]->GetMaterial()->SetEmitAmount(0.75f);
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
-		entities[i]->GetMaterial()->SetEmitAmount((entities.size() - i) * 0.25f);
+		entities[i]->GetMaterial()->SetRoughness(0.70f);
 	}
 }
 

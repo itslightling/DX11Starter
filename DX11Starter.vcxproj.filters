@@ -28,6 +28,9 @@
     <Filter Include="Assets\Textures\HQGame">
       <UniqueIdentifier>{347d5c70-73d2-4716-b28c-06526433d151}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Textures\WithNormals">
+      <UniqueIdentifier>{7476640e-6b46-49e4-a478-c3ce10b2ddca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -209,6 +212,33 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="Assets\Textures\HQGame\structure-endgame-floor_emissive.png">
       <Filter>Assets\Textures\HQGame</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cobblestone.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cobblestone_normals.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cobblestone_specular.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cushion.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cushion_normals.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\cushion_specular.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\rock.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\rock_normals.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\WithNormals\rock_specular.png">
+      <Filter>Assets\Textures\WithNormals</Filter>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
