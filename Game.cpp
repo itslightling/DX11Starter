@@ -48,7 +48,6 @@ Game::~Game()
 	// we don't need to explicitly clean up those DirectX objects
 	// - If we weren't using smart pointers, we'd need
 	//   to call Release() on each DirectX object created in Game
-
 }
 
 // --------------------------------------------------------
@@ -57,10 +56,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these later
-	LoadShaders();
+	LoadShadersAndMaterials();
 	LoadTextures();
 	LoadLighting();
 	CreateBasicGeometry();
@@ -72,14 +68,9 @@ void Game::Init()
 }
 
 // --------------------------------------------------------
-// Loads shaders from compiled shader object (.cso) files
-// and also created the Input Layout that describes our 
-// vertex data to the rendering pipeline. 
-// - Input Layout creation is done here because it must 
-//    be verified against vertex shader byte code
-// - We'll have that byte code already loaded below
+// Loads shaders from compiled shader object (.cso) files and pushes them to materials
 // --------------------------------------------------------
-void Game::LoadShaders()
+void Game::LoadShadersAndMaterials()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
@@ -92,6 +83,9 @@ void Game::LoadShaders()
 	};
 }
 
+// --------------------------------------------------------
+// Loads textures and pushes them to the loaded materials
+// --------------------------------------------------------
 void Game::LoadTextures()
 {
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
@@ -105,76 +99,31 @@ void Game::LoadTextures()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>
-		deepFloorEmissive,
-		deepFloorSpecular,
-		deepFloorAlbedo,
-		floorEmissive,
-		floorSpecular,
-		floorAlbedo;
-
-	// taking the preprocessor macro from the demo because I don't like typing
-	#define GetTex(pathToTexture, shaderResourceView) CreateWICTextureFromFile(device.Get(), context.Get(), GetFullPathTo_Wide(pathToTexture).c_str(), 0, shaderResourceView.GetAddressOf());
-
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", deepFloorEmissive);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", deepFloorSpecular);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", deepFloorAlbedo);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_emissive.png", floorEmissive);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", floorSpecular);
-	GetTex(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", floorAlbedo);
-
 	materials[0]->PushSampler("BasicSampler", sampler);
-	materials[0]->PushTexture("Albedo", deepFloorAlbedo);
-	materials[0]->PushTexture("Specular", deepFloorSpecular);
-	materials[0]->PushTexture("Emissive", deepFloorEmissive);
+	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+
 	materials[1]->PushSampler("BasicSampler", sampler);
-	materials[1]->PushTexture("Albedo", floorAlbedo);
-	materials[1]->PushTexture("Specular", floorSpecular);
-	materials[1]->PushTexture("Emissive", floorEmissive);
+	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
 }
 
+// --------------------------------------------------------
+// Instantiates all the lighting in the scene
+// --------------------------------------------------------
 void Game::LoadLighting()
 {
 	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
 
-	Light directionalLight0 = {};
-	directionalLight0.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight0.Direction = XMFLOAT3(1, 0.5f, 0.5f);
-	directionalLight0.Color = XMFLOAT3(1, 1, 1);
-	directionalLight0.Intensity = 0.5f;
-
-	Light directionalLight1 = {};
-	directionalLight1.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight1.Direction = XMFLOAT3(-0.25f, -1, 0.75f);
-	directionalLight1.Color = XMFLOAT3(1, 1, 1);
-	directionalLight1.Intensity = 0.5f;
-
-	Light directionalLight2 = {};
-	directionalLight2.Type = LIGHT_TYPE_DIRECTIONAL;
-	directionalLight2.Direction = XMFLOAT3(-1, 1, -0.5f);
-	directionalLight2.Color = XMFLOAT3(1, 1, 1);
-	directionalLight2.Intensity = 0.5f;
-
-	Light pointLight0 = {};
-	pointLight0.Type = LIGHT_TYPE_POINT;
-	pointLight0.Position = XMFLOAT3(-1.5f, 0, 0);
-	pointLight0.Color = XMFLOAT3(1, 1, 1);
-	pointLight0.Intensity = 0.5f;
-	pointLight0.Range = 10;
-
-	Light pointLight1 = {};
-	pointLight1.Type = LIGHT_TYPE_POINT;
-	pointLight1.Position = XMFLOAT3(1.5f, 0, 0);
-	pointLight1.Color = XMFLOAT3(1, 1, 1);
-	pointLight1.Intensity = 0.25f;
-	pointLight1.Range = 10;
-
 	lights = {
-		directionalLight0,
-		directionalLight1,
-		directionalLight2,
-		pointLight0,
-		pointLight1,
+		Light::Directional(XMFLOAT3(1, 0.5f, 0.5f), XMFLOAT3(1, 1, 1), 0.5f),
+		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.5f),
+		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.5f),
+		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.5f, 10),
+		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.25f, 10),
+		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.25f, 10),
 	};
 }
 
@@ -211,7 +160,7 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[0], shapes[0]),
 		std::make_shared<Entity>(materials[0], shapes[1]),
 		std::make_shared<Entity>(materials[0], shapes[2]),
-		std::make_shared<Entity>(materials[1], shapes[3]),
+		std::make_shared<Entity>(materials[0], shapes[3]),
 		std::make_shared<Entity>(materials[1], shapes[4]),
 		std::make_shared<Entity>(materials[1], shapes[5]),
 		std::make_shared<Entity>(materials[1], shapes[6]),
@@ -220,6 +169,7 @@ void Game::CreateBasicGeometry()
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
+		entities[i]->GetMaterial()->SetEmitAmount((entities.size() - i) * 0.25f);
 	}
 }
 
@@ -242,7 +192,6 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
 
@@ -251,10 +200,6 @@ void Game::Update(float deltaTime, float totalTime)
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
-		entities[i]->GetMaterial()->SetRoughness(sin(totalTime) * 0.5f + 0.49f);
-		entities[i]->GetMaterial()->SetUVOffset(DirectX::XMFLOAT2(cos(totalTime * 4) * 0.5f + 0.49f, cos(totalTime * 4) * 0.5f + 0.49f));
-		entities[i]->GetMaterial()->SetUVScale(DirectX::XMFLOAT2(sin(totalTime) * 0.5f + 0.49f, sin(totalTime) * 0.5f + 0.49f));
-		entities[i]->GetMaterial()->SetEmitAmount(cos(totalTime) * 0.5f + 0.49f);
 	}
 }
 

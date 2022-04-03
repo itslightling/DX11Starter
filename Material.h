@@ -2,10 +2,17 @@
 
 #include <DirectXMath.h>
 #include <memory>
+#include "DXCore.h"
 #include "SimpleShader.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Lights.h"
+#include "WICTextureLoader.h"
+
+constexpr auto TEXTYPE_ALBEDO = "Albedo";
+constexpr auto TEXTYPE_NORMAL = "Normal";
+constexpr auto TEXTYPE_EMISSIVE = "Emissive";
+constexpr auto TEXTYPE_SPECULAR = "Specular";
 
 class Material
 {
@@ -39,6 +46,7 @@ public:
 	void									SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader);
 	void									SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader);
 
+	void									LoadTexture(const wchar_t* _path, const char* _type, ID3D11Device* _device, ID3D11DeviceContext* _context);
 	void									PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler);
 	void									PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _texture);
 
