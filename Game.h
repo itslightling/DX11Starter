@@ -19,10 +19,20 @@ public:
 	Game(HINSTANCE hInstance);
 	~Game();
 
-	void Init();
-	void OnResize();
-	void Update(float deltaTime, float totalTime);
-	void Draw(float deltaTime, float totalTime);
+	void															Init();
+	void															OnResize();
+	void															Update(float deltaTime, float totalTime);
+	void															Draw(float deltaTime, float totalTime);
+
+	static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>			CreateCubemap(
+																		Microsoft::WRL::ComPtr<ID3D11Device> _device,
+																		Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context,
+																		const wchar_t* _right,
+																		const wchar_t* _left,
+																		const wchar_t* _up,
+																		const wchar_t* _down,
+																		const wchar_t* _front,
+																		const wchar_t* _back);
 
 private:
 	// Should we use vsync to limit the frame rate?
