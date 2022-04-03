@@ -18,12 +18,19 @@ cbuffer ExternalData : register(b0)
 	float3 tint;
 	float lightCount;
 
+	int hasEmissiveMap;
+	int hasSpecularMap;
+	int hasNormalMap;
+	int hasReflectionMap;
+
 	Light lights[MAX_LIGHTS];
 }
 
 Texture2D Albedo : register(t0);
 Texture2D Specular : register(t1);
 Texture2D Emissive : register(t2);
+Texture2D Normal : register(t3);
+TextureCube Reflection : register(t4);
 SamplerState BasicSampler : register(s0);
 
 // shader entry point
@@ -37,8 +44,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 view = getView(cameraPosition, input.worldPosition);
 
 	float4 albedo = Albedo.Sample(BasicSampler, input.uv).rgba;
-	float specular = Specular.Sample(BasicSampler, input.uv).r;
-	float3 emit = Emissive.Sample(BasicSampler, input.uv).rgb;
+	float specular = 1;
+	if (hasSpecularMap > 0) specular = Specular.Sample(BasicSampler, input.uv).r;
+	float3 emit = float3(1, 1, 1);
+	if (hasEmissiveMap > 0) emit = Emissive.Sample(BasicSampler, input.uv).rgb;
 	float3 surface = albedo.rgb * tint;
 	float3 light = ambient * surface;
 
