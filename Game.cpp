@@ -90,8 +90,6 @@ void Game::LoadShadersAndMaterials()
 // --------------------------------------------------------
 void Game::LoadTextures()
 {
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
-
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -186,6 +184,24 @@ void Game::CreateBasicGeometry()
 		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
 		entities[i]->GetMaterial()->SetRoughness(0.60f);
 	}
+
+	skybox = std::make_shared<Sky>(
+			shapes[0],
+			std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
+			std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
+			CreateCubemap(
+				device,
+				context,
+				L"Assets/Textures/Skies/planets/right.png",
+				L"Assets/Textures/Skies/planets/left.png",
+				L"Assets/Textures/Skies/planets/up.png",
+				L"Assets/Textures/Skies/planets/down.png",
+				L"Assets/Textures/Skies/planets/front.png",
+				L"Assets/Textures/Skies/planets/back.png"
+			),
+			sampler,
+			device
+		);
 }
 
 
@@ -240,6 +256,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		entity->Draw(camera, ambient, lights);
 	}
+
+	skybox->Draw(context, camera);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it

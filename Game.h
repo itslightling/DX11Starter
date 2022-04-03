@@ -7,6 +7,7 @@
 #include "SimpleShader.h"
 #include "Material.h"
 #include "Lights.h"
+#include "Sky.h"
 #include <DirectXMath.h>
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
 #include <memory>
@@ -58,6 +59,9 @@ private:
 	// A7 Lights
 	std::vector<Light> lights;
 	DirectX::XMFLOAT3 ambient;
+	// A9 Normalmaps & Cubemaps
+	std::shared_ptr<Sky> skybox;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 };

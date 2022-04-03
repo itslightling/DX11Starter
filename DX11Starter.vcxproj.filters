@@ -31,6 +31,12 @@
     <Filter Include="Assets\Textures\WithNormals">
       <UniqueIdentifier>{7476640e-6b46-49e4-a478-c3ce10b2ddca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Textures\Skies">
+      <UniqueIdentifier>{343d3538-c075-4c73-8ca8-f919b5ba231b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures\Skies\planets">
+      <UniqueIdentifier>{f0ccea00-427b-47f7-8fce-7110b649b668}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -61,6 +67,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sky.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -96,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sky.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -245,6 +257,24 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="Assets\Textures\WithNormals\rock_specular.png">
       <Filter>Assets\Textures\WithNormals</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\up.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\back.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\down.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\front.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\left.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\planets\right.png">
+      <Filter>Assets\Textures\Skies\planets</Filter>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>

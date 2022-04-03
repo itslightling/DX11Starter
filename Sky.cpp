@@ -1,10 +1,18 @@
 #include "Sky.h"
 
-Sky::Sky(std::shared_ptr<Mesh> _mesh, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _cubemap, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler, Microsoft::WRL::ComPtr<ID3D11Device> _device)
+Sky::Sky(
+	std::shared_ptr<Mesh>								_mesh,
+	std::shared_ptr<SimpleVertexShader>					_vertexShader,
+	std::shared_ptr<SimplePixelShader>					_pixelShader,
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	_cubemap,
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>			_sampler,
+	Microsoft::WRL::ComPtr<ID3D11Device>				_device)
 {
 	mesh = _mesh;
 	cubemap = _cubemap;
 	sampler = _sampler;
+	vertexShader = _vertexShader;
+	pixelShader = _pixelShader;
 
 	D3D11_RASTERIZER_DESC rDesc = {};
 	rDesc.FillMode = D3D11_FILL_SOLID;
@@ -21,7 +29,7 @@ Sky::~Sky()
 {
 }
 
-void Sky::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context, Camera* _camera)
+void Sky::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context, std::shared_ptr<Camera> _camera)
 {
 	_context->RSSetState(rasterizerState.Get());
 	_context->OMSetDepthStencilState(depthState.Get(), 0);

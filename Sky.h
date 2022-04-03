@@ -12,6 +12,8 @@ class Sky
 public:
 	Sky(
 		std::shared_ptr<Mesh>											_mesh,
+		std::shared_ptr<SimpleVertexShader>								_vertexShader,
+		std::shared_ptr<SimplePixelShader>								_pixelShader,
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>				_cubemap,
 		Microsoft::WRL::ComPtr<ID3D11SamplerState>						_sampler,
 		Microsoft::WRL::ComPtr<ID3D11Device>							_device);
@@ -19,7 +21,7 @@ public:
 
 	void			Draw(
 						Microsoft::WRL::ComPtr<ID3D11DeviceContext>		_context,
-						Camera*											_camera);
+						std::shared_ptr<Camera>							_camera);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState>				sampler;
