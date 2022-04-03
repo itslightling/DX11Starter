@@ -130,12 +130,13 @@ void Game::LoadLighting()
 	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
 
 	lights = {
-		Light::Directional(XMFLOAT3(1, 0.5f, 0.5f), XMFLOAT3(1, 1, 1), 0.5f),
-		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.5f),
-		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.5f),
+		Light::Directional(XMFLOAT3(1, 0.5f, 0.5f), XMFLOAT3(1, 1, 1), 0.75f),
+		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.75f),
+		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.75f),
 		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.5f, 10),
 		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.25f, 10),
 		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.25f, 10),
+		Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 5, 20),
 	};
 }
 
@@ -183,7 +184,7 @@ void Game::CreateBasicGeometry()
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
-		entities[i]->GetMaterial()->SetRoughness(0.70f);
+		entities[i]->GetMaterial()->SetRoughness(0.60f);
 	}
 }
 

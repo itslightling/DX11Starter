@@ -38,6 +38,15 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	// ensure input normals are normalized
 	input.normal = normalize(input.normal);
+	input.tangent = normalize(input.tangent);
+	if (hasNormalMap > 0)
+	{
+		float3 unpackedNormal = Normal.Sample(BasicSampler, input.uv).rgb * 2 - 1;
+		float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal));
+		float3 B = cross(T, input.normal);
+		float3x3 TBN = float3x3(T, B, input.normal);
+		input.normal = mul(unpackedNormal, TBN);
+	}
 	input.uv = input.uv * scale + offset;
 
 	// view only needs calculated once, so pre-calculate here and pass it to lights
