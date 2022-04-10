@@ -34,7 +34,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	camera = std::make_shared<Camera>(0.0f, 0.0f, -20.0f, (float)width / height, 60, 0.01f, 1000.0f);
+	camera = std::make_shared<Camera>(0.0f, 0.0f, -10.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
 }
 
 // --------------------------------------------------------
@@ -74,14 +74,20 @@ void Game::LoadShadersAndMaterials()
 {
 	vertexShader = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"VertexShader.cso").c_str());
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
+	vertexShaderPBR = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SimpleVertexPBR.cso").c_str());
+	pixelShaderPBR = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelPBR.cso").c_str());
 
 	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	materials = {
-		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 	};
 }
 
@@ -113,30 +119,51 @@ void Game::LoadTextures()
 	materials[0]->PushSampler("BasicSampler", sampler);
 	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
 	materials[0]->hasReflectionMap = true;
-	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 
 	materials[1]->PushSampler("BasicSampler", sampler);
-	materials[1]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
-	materials[1]->hasReflectionMap = true;
-	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
-	materials[1]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 
 	materials[2]->PushSampler("BasicSampler", sampler);
-	materials[2]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
-	materials[2]->hasReflectionMap = true;
-	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
-	materials[2]->LoadTexture(L"Assets/Textures/WithNormals/rock_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 
 	materials[3]->PushSampler("BasicSampler", sampler);
-	materials[3]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
-	materials[3]->hasReflectionMap = true;
-	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
-	materials[3]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+
+	materials[4]->PushSampler("BasicSampler", sampler);
+	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+
+	materials[5]->PushSampler("BasicSampler", sampler);
+	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+
+	materials[6]->PushSampler("BasicSampler", sampler);
+	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+
+	materials[7]->PushSampler("BasicSampler", sampler);
+	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 }
 
 // --------------------------------------------------------
@@ -147,13 +174,13 @@ void Game::LoadLighting()
 	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
 
 	lights = {
-		Light::Directional(XMFLOAT3(1, 0.5f, 0.5f), XMFLOAT3(1, 1, 1), 0.75f),
-		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.75f),
-		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.75f),
-		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.5f, 10),
-		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.25f, 10),
-		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.25f, 10),
-		Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 5, 20),
+		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
+		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.25f),
+		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.25f),
+		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
+		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
+		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.35f, 10),
+		Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 0.35f, 20),
 	};
 }
 
@@ -187,31 +214,29 @@ void Game::CreateBasicGeometry()
 	};
 
 	entities = {
-		std::make_shared<Entity>(materials[1], shapes[0]),
-		std::make_shared<Entity>(materials[2], shapes[1]),
-		std::make_shared<Entity>(materials[3], shapes[2]),
+		std::make_shared<Entity>(materials[1], shapes[3]),
 		std::make_shared<Entity>(materials[2], shapes[3]),
-		std::make_shared<Entity>(materials[1], shapes[4]),
-		std::make_shared<Entity>(materials[0], shapes[5]),
-		std::make_shared<Entity>(materials[0], shapes[6]),
+		std::make_shared<Entity>(materials[3], shapes[3]),
+		std::make_shared<Entity>(materials[4], shapes[3]),
+		std::make_shared<Entity>(materials[5], shapes[3]),
+		std::make_shared<Entity>(materials[6], shapes[3]),
+		std::make_shared<Entity>(materials[7], shapes[3]),
+		std::make_shared<Entity>(materials[0], shapes[3]),
 	};
-
-	entities[6]->GetMaterial()->SetEmitAmount(0.75f);
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
-		entities[i]->GetMaterial()->SetRoughness(0.60f);
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i + 0.5f) * 2.5f, 0, 0);
 	}
 
 	skybox = std::make_shared<Sky>(
-			shapes[0],
-			std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
-			std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
-			demoCubemap,
-			sampler,
-			device
-		);
+		shapes[0],
+		std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
+		demoCubemap,
+		sampler,
+		device
+	);
 }
 
 

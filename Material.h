@@ -2,6 +2,7 @@
 
 #include <DirectXMath.h>
 #include <memory>
+#include <functional>
 #include "DXCore.h"
 #include "SimpleShader.h"
 #include "Transform.h"
@@ -14,11 +15,14 @@ constexpr auto TEXTYPE_NORMAL = "Normal";
 constexpr auto TEXTYPE_EMISSIVE = "Emissive";
 constexpr auto TEXTYPE_SPECULAR = "Specular";
 constexpr auto TEXTYPE_REFLECTION = "Reflection";
+constexpr auto TEXTYPE_ROUGHNESS = "Roughness";
+constexpr auto TEXTYPE_METALNESS = "Metalness";
 
 class Material
 {
 public:
 	Material(
+		bool								_pbr,
 		DirectX::XMFLOAT3					_tint,
 		float								_roughness,
 		std::shared_ptr<SimpleVertexShader>	_vertexShader,
@@ -56,6 +60,18 @@ public:
 	bool									hasNormalMap;
 	bool									hasReflectionMap;
 private:
+	void									ActivateStandard(
+												Transform* _transform,
+												std::shared_ptr<Camera> _camera,
+												DirectX::XMFLOAT3 _ambient,
+												std::vector<Light> _lights);
+	void									ActivatePBR(
+												Transform* _transform,
+												std::shared_ptr<Camera> _camera,
+												DirectX::XMFLOAT3 _ambient,
+												std::vector<Light> _lights);
+
+	bool									pbr;
 	DirectX::XMFLOAT3						tint;
 	float									roughness;
 	float									emitAmount;

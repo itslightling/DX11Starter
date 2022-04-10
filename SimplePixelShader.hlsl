@@ -52,7 +52,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// view only needs calculated once, so pre-calculate here and pass it to lights
 	float3 view = getView(cameraPosition, input.worldPosition);
 
-	float4 albedo = Albedo.Sample(BasicSampler, input.uv).rgba;
+	float4 albedo = pow(Albedo.Sample(BasicSampler, input.uv).rgba, 2.2f);
 	float specular = 1;
 	if (hasSpecularMap > 0) specular = Specular.Sample(BasicSampler, input.uv).r;
 	float3 emit = float3(1, 1, 1);
@@ -83,5 +83,5 @@ float4 main(VertexToPixel input) : SV_TARGET
 		final = lerp(final, reflCol, getFresnel(input.normal, view, F0_NON_METAL));
 	}
 
-	return float4(final, albedo.a);
+	return float4(pow(final, 1.0f/2.2f), albedo.a);
 }

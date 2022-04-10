@@ -3,7 +3,7 @@
 
 using namespace DirectX;
 
-Camera::Camera(float _x, float _y, float _z, float _aspect, float _fov, float _near, float _far)
+Camera::Camera(float _x, float _y, float _z, float _aspect, float _fov, float _near, float _far, float _moveSpeed)
 {
 	transform.SetPosition(_x, _y, _z);
 
@@ -11,6 +11,7 @@ Camera::Camera(float _x, float _y, float _z, float _aspect, float _fov, float _n
 	fovYRadians = XMConvertToRadians(_fov);
 	clipNear = _near;
 	clipFar = _far;
+	moveSpeed = _moveSpeed;
 
 	UpdateViewMatrix();
 	UpdateProjectionMatrix();
@@ -100,8 +101,8 @@ void Camera::ReadInput(float _dt)
 	if (input.KeyDown(VK_SHIFT))   modify *= 2.0f;
 	if (input.KeyDown(VK_CONTROL)) modify /= 2.0f;
 
-	transform.TranslateRelative(moveLat * _dt * modify, 0, moveLong * _dt * modify);
-	transform.TranslateAbsolute(0, moveVert * _dt * modify, 0);
+	transform.TranslateRelative(moveLat * _dt * modify * moveSpeed, 0, moveLong * _dt * modify * moveSpeed);
+	transform.TranslateAbsolute(0, moveVert * _dt * modify * moveSpeed, 0);
 
 	if (input.MouseLeftDown())
 	{
