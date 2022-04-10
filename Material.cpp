@@ -1,11 +1,13 @@
 #include "Material.h"
 
 Material::Material(
+	bool _pbr,
 	DirectX::XMFLOAT3 _tint,
 	float _roughness,
 	std::shared_ptr<SimpleVertexShader> _vertexShader,
 	std::shared_ptr<SimplePixelShader> _pixelShader)
 {
+	pbr = _pbr;
 	tint = _tint;
 	roughness = _roughness;
 	vertexShader = _vertexShader;
@@ -25,37 +27,8 @@ Material::~Material()
 
 void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
 {
-	vertexShader->SetMatrix4x4("world", _transform->GetWorldMatrix());
-	vertexShader->SetMatrix4x4("worldInvTranspose", _transform->GetWorldMatrixInverseTranspose());
-	vertexShader->SetMatrix4x4("view", _camera->GetViewMatrix());
-	vertexShader->SetMatrix4x4("projection", _camera->GetProjectionMatrix());
-	vertexShader->CopyAllBufferData();
-	vertexShader->SetShader();
-
-	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
-	pixelShader->SetFloat("roughness", GetRoughness());
-	pixelShader->SetFloat2("scale", GetUVScale());
-	pixelShader->SetFloat2("offset", GetUVOffset());
-	pixelShader->SetFloat3("ambient", _ambient);
-	pixelShader->SetFloat("emitAmount", GetEmitAmount());
-	pixelShader->SetFloat3("tint", GetTint());
-	pixelShader->SetFloat("lightCount", (int)_lights.size());
-	pixelShader->SetInt("hasEmissiveMap", (int)hasEmissiveMap);
-	pixelShader->SetInt("hasSpecularMap", (int)hasSpecularMap);
-	pixelShader->SetInt("hasNormalMap", (int)hasNormalMap);
-	pixelShader->SetInt("hasReflectionMap", (int)hasReflectionMap);
-	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
-	pixelShader->CopyAllBufferData();
-	pixelShader->SetShader();
-
-	for (auto& t : textures)
-	{
-		pixelShader->SetShaderResourceView(t.first.c_str(), t.second.Get());
-	}
-	for (auto& s : samplers)
-	{
-		pixelShader->SetSamplerState(s.first.c_str(), s.second.Get());
-	}
+	if (pbr) ActivatePBR(_transform, _camera, _ambient, _lights);
+	else ActivateStandard(_transform, _camera, _ambient, _lights);
 }
 
 DirectX::XMFLOAT3 Material::GetTint()
@@ -159,4 +132,66 @@ void Material::PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11Sampl
 void Material::PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _texture)
 {
 	textures.insert({ _name, _texture });
+}
+
+void Material::ActivateStandard(Transform* _transform, std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
+{
+	vertexShader->SetMatrix4x4("world", _transform->GetWorldMatrix());
+	vertexShader->SetMatrix4x4("worldInvTranspose", _transform->GetWorldMatrixInverseTranspose());
+	vertexShader->SetMatrix4x4("view", _camera->GetViewMatrix());
+	vertexShader->SetMatrix4x4("projection", _camera->GetProjectionMatrix());
+	vertexShader->CopyAllBufferData();
+	vertexShader->SetShader();
+
+	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
+	pixelShader->SetFloat("roughness", GetRoughness());
+	pixelShader->SetFloat2("scale", GetUVScale());
+	pixelShader->SetFloat2("offset", GetUVOffset());
+	pixelShader->SetFloat3("ambient", _ambient);
+	pixelShader->SetFloat("emitAmount", GetEmitAmount());
+	pixelShader->SetFloat3("tint", GetTint());
+	pixelShader->SetFloat("lightCount", (int)_lights.size());
+	pixelShader->SetInt("hasEmissiveMap", (int)hasEmissiveMap);
+	pixelShader->SetInt("hasSpecularMap", (int)hasSpecularMap);
+	pixelShader->SetInt("hasNormalMap", (int)hasNormalMap);
+	pixelShader->SetInt("hasReflectionMap", (int)hasReflectionMap);
+	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
+	pixelShader->CopyAllBufferData();
+	pixelShader->SetShader();
+
+	for (auto& t : textures)
+	{
+		pixelShader->SetShaderResourceView(t.first.c_str(), t.second.Get());
+	}
+	for (auto& s : samplers)
+	{
+		pixelShader->SetSamplerState(s.first.c_str(), s.second.Get());
+	}
+}
+
+void Material::ActivatePBR(Transform* _transform, std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
+{
+	vertexShader->SetMatrix4x4("world", _transform->GetWorldMatrix());
+	vertexShader->SetMatrix4x4("worldInvTranspose", _transform->GetWorldMatrixInverseTranspose());
+	vertexShader->SetMatrix4x4("view", _camera->GetViewMatrix());
+	vertexShader->SetMatrix4x4("projection", _camera->GetProjectionMatrix());
+	vertexShader->CopyAllBufferData();
+	vertexShader->SetShader();
+
+	pixelShader->SetFloat2("scale", GetUVScale());
+	pixelShader->SetFloat2("offset", GetUVOffset());
+	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
+	pixelShader->SetFloat("lightCount", (int)_lights.size());
+	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
+	pixelShader->CopyAllBufferData();
+	pixelShader->SetShader();
+
+	for (auto& t : textures)
+	{
+		pixelShader->SetShaderResourceView(t.first.c_str(), t.second.Get());
+	}
+	for (auto& s : samplers)
+	{
+		pixelShader->SetSamplerState(s.first.c_str(), s.second.Get());
+	}
 }
