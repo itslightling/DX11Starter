@@ -6,7 +6,7 @@
 class Camera
 {
 public:
-	Camera(float _x, float _y, float _z, float _aspect, float _fov, float _near, float _far);
+	Camera(float _x, float _y, float _z, float _aspect, float _fov, float _near, float _far, float _moveSpeed);
 	~Camera();
 
 	void				Update(float _dt);
@@ -23,6 +23,7 @@ public:
 	void				SetFarClip(float _far);
 
 private:
+	float				moveSpeed;
 	float				aspect;
 	float				fovYRadians;
 	float				clipNear;

@@ -34,7 +34,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	camera = std::make_shared<Camera>(0.0f, 0.0f, -20.0f, (float)width / height, 60, 0.01f, 1000.0f);
+	camera = std::make_shared<Camera>(0.0f, 0.0f, -10.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
 }
 
 // --------------------------------------------------------
@@ -226,7 +226,7 @@ void Game::CreateBasicGeometry()
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i) * 5, 0, 0);
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i + 0.5f) * 2.5f, 0, 0);
 	}
 
 	skybox = std::make_shared<Sky>(
