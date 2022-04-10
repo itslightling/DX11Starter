@@ -133,6 +133,12 @@
     <FxCompile Include="SkyboxVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="SimplePixelPBR.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SimpleVertexPBR.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\Models\cube.obj">
@@ -379,6 +385,12 @@
     </None>
     <None Include="packages.config" />
     <None Include="SkyboxDefines.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="HelpersPBR.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="LightsPBR.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
