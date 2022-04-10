@@ -43,7 +43,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float metalness = Metalness.Sample(Sampler, input.uv).r;
 	float3 specular = lerp(F0_NON_METAL.rrr, albedo.rgb, metalness);
 
-	float3 light = albedo;
+	float3 light = float3(0, 0, 0);
 	for (int i = 0; i < lightCount; i++)
 	{
 		switch (lights[i].Type)

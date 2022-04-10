@@ -5,7 +5,7 @@
 float3 directionalLightPBR(Light light, float3 normal, float3 view, float roughness, float metalness, float3 surfaceColor, float3 specularColor)
 {
 	float3 lightDirection = normalize(light.Direction);
-	float diffuse = DiffusePBR(normal, -lightDirection);
+	float diffuse = DiffusePBR(normal, lightDirection);
 	float3 specular = MicrofacetBRDF(normal, lightDirection, view, roughness, specularColor);
 
 	float3 balancedDiff = DiffuseEnergyConserve(diffuse, specular, metalness);

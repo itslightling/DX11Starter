@@ -119,9 +119,9 @@ void Game::LoadTextures()
 	materials[0]->PushSampler("BasicSampler", sampler);
 	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
 	materials[0]->hasReflectionMap = true;
-	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 
 	materials[1]->PushSampler("BasicSampler", sampler);
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -174,13 +174,13 @@ void Game::LoadLighting()
 	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
 
 	lights = {
-		Light::Directional(XMFLOAT3(1, 0.5f, 0.5f), XMFLOAT3(1, 1, 1), 2.00f),
+		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
 		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.25f),
 		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.25f),
-		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.25f, 10),
-		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.25f, 10),
-		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.25f, 10),
-		Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 0.25f, 20),
+		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
+		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
+		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.35f, 10),
+		Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 0.35f, 20),
 	};
 }
 
