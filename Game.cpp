@@ -89,6 +89,7 @@ void Game::LoadShadersAndMaterials()
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
 		std::make_shared<Material>(true, white, 0, vertexShader, pixelShaderToon),
 	};
 }
@@ -106,6 +107,17 @@ void Game::LoadTextures()
 	sampDesc.MaxAnisotropy = 16;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
+
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	device->CreateBlendState(&blendDesc, alphaBlendState.GetAddressOf());
 
 	demoCubemap = CreateCubemap(
 		device,
@@ -166,6 +178,12 @@ void Game::LoadTextures()
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+
+	materials[8]->PushSampler("BasicSampler", sampler);
+	materials[8]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
+	materials[8]->hasReflectionMap = true;
+	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 }
 
 // --------------------------------------------------------
@@ -302,6 +320,8 @@ void Game::Draw(float deltaTime, float totalTime)
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
+
+	context->OMSetBlendState(alphaBlendState.Get(), 0, 0xFFFFFFFF);
 
 	for (auto entity : entities)
 	{

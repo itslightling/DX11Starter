@@ -68,5 +68,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> demoCubemap;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBlendState;
 };
 
