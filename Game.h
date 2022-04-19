@@ -67,7 +67,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> demoCubemap;
 
+	std::vector<std::shared_ptr<Entity>> transpEntities;
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBlendState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> backfaceRasterState;
 };
 

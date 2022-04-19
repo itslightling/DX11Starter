@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include "Input.h"
 #include "SimpleShader.h"
+#include <algorithm>
 
 // Needed for a helper function to read compiled shader files from the hard drive
 #pragma comment(lib, "d3dcompiler.lib")
@@ -90,7 +91,7 @@ void Game::LoadShadersAndMaterials()
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(true, white, 0, vertexShader, pixelShaderToon),
+		std::make_shared<Material>(false, white, 0, vertexShader, pixelShaderToon),
 	};
 }
 
@@ -118,6 +119,11 @@ void Game::LoadTextures()
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	device->CreateBlendState(&blendDesc, alphaBlendState.GetAddressOf());
+	D3D11_RASTERIZER_DESC rastDesc = {};
+	rastDesc.DepthClipEnable = true;
+	rastDesc.CullMode = D3D11_CULL_FRONT;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	device->CreateRasterizerState(&rastDesc, backfaceRasterState.GetAddressOf());
 
 	demoCubemap = CreateCubemap(
 		device,
@@ -180,8 +186,6 @@ void Game::LoadTextures()
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 
 	materials[8]->PushSampler("BasicSampler", sampler);
-	materials[8]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
-	materials[8]->hasReflectionMap = true;
 	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 }
@@ -243,11 +247,17 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[7], shapes[3]),
 		std::make_shared<Entity>(materials[0], shapes[3]),
 
-		std::make_shared<Entity>(materials[8], shapes[3]),
-		std::make_shared<Entity>(materials[8], shapes[3]),
-		std::make_shared<Entity>(materials[8], shapes[3]),
-		std::make_shared<Entity>(materials[8], shapes[3]),
-		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+	};
+
+	transpEntities = {
 		std::make_shared<Entity>(materials[8], shapes[3]),
 		std::make_shared<Entity>(materials[8], shapes[3]),
 		std::make_shared<Entity>(materials[8], shapes[3]),
@@ -261,6 +271,11 @@ void Game::CreateBasicGeometry()
 	for (int i = entities.size() / 2; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + (i - (int)entities.size() / 2) + 0.5f) * 2.5f, 1.5f, 0);
+	}
+
+	for (int i = 0; i < transpEntities.size(); ++i)
+	{
+		transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
 	}
 
 	skybox = std::make_shared<Sky>(
@@ -321,14 +336,34 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-	context->OMSetBlendState(alphaBlendState.Get(), 0, 0xFFFFFFFF);
-
 	for (auto entity : entities)
 	{
 		entity->Draw(camera, ambient, lights);
 	}
 
+	std::sort(transpEntities.begin(), transpEntities.end(), [&](std::shared_ptr<Entity> a, std::shared_ptr<Entity> b) -> bool
+	{
+		XMFLOAT3 positionA = a->GetTransform()->GetPosition();
+		XMFLOAT3 positionB = b->GetTransform()->GetPosition();
+		XMFLOAT3 camPos = camera->GetTransform()->GetPosition();
+
+		// compare distance
+		float aDist = XMVectorGetX(XMVector3Length(XMLoadFloat3(&positionA) - XMLoadFloat3(&camPos)));
+		float bDist = XMVectorGetX(XMVector3Length(XMLoadFloat3(&positionB) - XMLoadFloat3(&camPos)));
+		return aDist > bDist;
+	});
+
 	skybox->Draw(context, camera);
+
+	context->OMSetBlendState(alphaBlendState.Get(), 0, 0xFFFFFFFF);
+	for (auto entity : transpEntities)
+	{
+		context->RSSetState(backfaceRasterState.Get());
+		entity->Draw(camera, ambient, lights);
+		context->RSSetState(0);
+		entity->Draw(camera, ambient, lights);
+	}
+	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
