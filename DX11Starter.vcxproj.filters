@@ -139,6 +139,9 @@
     <FxCompile Include="SimpleVertexPBR.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="ToonShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\Models\cube.obj">

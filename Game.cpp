@@ -76,6 +76,7 @@ void Game::LoadShadersAndMaterials()
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 	vertexShaderPBR = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SimpleVertexPBR.cso").c_str());
 	pixelShaderPBR = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelPBR.cso").c_str());
+	pixelShaderToon = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"ToonShader.cso").c_str());
 
 	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
@@ -88,6 +89,7 @@ void Game::LoadShadersAndMaterials()
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(true, white, 0, vertexShader, pixelShaderToon),
 	};
 }
 
@@ -222,11 +224,25 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[6], shapes[3]),
 		std::make_shared<Entity>(materials[7], shapes[3]),
 		std::make_shared<Entity>(materials[0], shapes[3]),
+
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
 	};
 
-	for (int i = 0; i < entities.size(); ++i)
+	for (int i = 0; i < entities.size() / 2; ++i)
 	{
-		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i + 0.5f) * 2.5f, 0, 0);
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + i + 0.5f) * 2.5f, -1.5f, 0);
+	}
+
+	for (int i = entities.size() / 2; i < entities.size(); ++i)
+	{
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + (i - (int)entities.size() / 2) + 0.5f) * 2.5f, 1.5f, 0);
 	}
 
 	skybox = std::make_shared<Sky>(

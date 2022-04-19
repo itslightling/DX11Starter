@@ -49,6 +49,7 @@ private:
 	std::shared_ptr<SimpleVertexShader> vertexShader;
 	std::shared_ptr<SimplePixelShader> pixelShaderPBR;
 	std::shared_ptr<SimpleVertexShader> vertexShaderPBR;
+	std::shared_ptr<SimplePixelShader> pixelShaderToon;
 
 	// A2 shapes
 	std::vector<std::shared_ptr<Mesh>> shapes;
