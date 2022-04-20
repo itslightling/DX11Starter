@@ -20,11 +20,15 @@ constexpr auto TEXTYPE_METALNESS = "Metalness";
 constexpr auto TEXTYPE_RAMPDIFFUSE = "RampDiffuse";
 constexpr auto TEXTYPE_RAMPSPECULAR = "RampSpecular";
 
+constexpr auto MATTYPE_STANDARD = 0;
+constexpr auto MATTYPE_PBR = 1;
+constexpr auto MATTYPE_TOON = 2;
+
 class Material
 {
 public:
 	Material(
-		bool								_pbr,
+		int									_mode,
 		DirectX::XMFLOAT3					_tint,
 		float								_roughness,
 		std::shared_ptr<SimpleVertexShader>	_vertexShader,
@@ -89,8 +93,13 @@ private:
 												std::shared_ptr<Camera> _camera,
 												DirectX::XMFLOAT3 _ambient,
 												std::vector<Light> _lights);
+	void									ActivateToon(
+												Transform* _transform,
+												std::shared_ptr<Camera> _camera,
+												DirectX::XMFLOAT3 _ambient,
+												std::vector<Light> _lights);
 
-	bool									pbr;
+	int										mode;
 	DirectX::XMFLOAT3						tint;
 	float									roughness;
 	float									alpha;

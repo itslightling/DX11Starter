@@ -83,17 +83,17 @@ void Game::LoadShadersAndMaterials()
 	XMFLOAT3 deepPurple = XMFLOAT3(0.1f, 0.02f, 0.1f);
 
 	materials = {
-		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(false, white, 0, vertexShader, pixelShaderToon),
-		std::make_shared<Material>(false, deepPurple, 0, vertexShader, pixelShaderToon),
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader),
+		std::make_shared<Material>(MATTYPE_TOON, white, 0, vertexShader, pixelShaderToon),
+		std::make_shared<Material>(MATTYPE_TOON, deepPurple, 0, vertexShader, pixelShaderToon),
 	};
 }
 
@@ -102,6 +102,8 @@ void Game::LoadShadersAndMaterials()
 // --------------------------------------------------------
 void Game::LoadTextures()
 {
+	#pragma region Sampler Initialization
+	// Sampler description for wrapped texture sampling
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -111,6 +113,7 @@ void Game::LoadTextures()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
 
+	// Blend description for alpha support
 	D3D11_BLEND_DESC blendDesc = {};
 	blendDesc.RenderTarget[0].BlendEnable = true;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
@@ -121,17 +124,22 @@ void Game::LoadTextures()
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	device->CreateBlendState(&blendDesc, alphaBlendState.GetAddressOf());
+
+	// Rasterizer description for alpha support/rendering backfaces only
 	D3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.DepthClipEnable = true;
 	rastDesc.CullMode = D3D11_CULL_FRONT;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	device->CreateRasterizerState(&rastDesc, backfaceRasterState.GetAddressOf());
 
+	// Sampler description for clamping
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	device->CreateSamplerState(&sampDesc, clampSampler.GetAddressOf());
+	#pragma endregion
 
+	// Initialize skybox
 	demoCubemap = CreateCubemap(
 		device,
 		context,
@@ -143,6 +151,7 @@ void Game::LoadTextures()
 		L"Assets/Textures/Skies/planets/back.png"
 	);
 
+	#pragma region Material Setup
 	materials[0]->PushSampler("BasicSampler", sampler);
 	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
 	materials[0]->hasReflectionMap = true;
@@ -221,6 +230,7 @@ void Game::LoadTextures()
 	materials[10]->LoadTexture(L"Assets/Textures/Ramps/toonRampSpecular.png", TEXTYPE_RAMPSPECULAR, device.Get(), context.Get());
 	materials[10]->SetRimCutoff(0.15f);
 	materials[10]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
+	#pragma endregion
 }
 
 // --------------------------------------------------------
@@ -232,6 +242,8 @@ void Game::LoadLighting()
 
 	lights = {
 		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
+
+		// extra lights for testing
 		//Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.25f),
 		//Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.25f),
 		//Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
@@ -246,6 +258,7 @@ void Game::LoadLighting()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	#pragma region Mesh Loading
 	shapes = {
 		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/cube.obj").c_str(),
@@ -269,7 +282,9 @@ void Game::CreateBasicGeometry()
 			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
 			device, context),
 	};
+	#pragma endregion
 
+	#pragma region Entity Definition
 	entities = {
 		std::make_shared<Entity>(materials[1], shapes[3]),
 		std::make_shared<Entity>(materials[2], shapes[3]),
@@ -295,7 +310,9 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[8], shapes[3]),
 		std::make_shared<Entity>(materials[8], shapes[3]),
 	};
+	#pragma endregion
 
+	#pragma region Transform Setup
 	for (int i = 0; i < entities.size() / 2; ++i)
 	{
 		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + i + 0.5f) * 2.5f, -1.5f, 0);
@@ -310,6 +327,7 @@ void Game::CreateBasicGeometry()
 	{
 		transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
 	}
+	#pragma endregion
 
 	skybox = std::make_shared<Sky>(
 		shapes[0],
@@ -345,6 +363,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	camera->Update(deltaTime);
 
+	// rotate entities over time
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
@@ -359,9 +378,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	// Background color for clearing
 	static const float color[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
 
-	// Clear the render target and depth buffer (erases what's on the screen)
-	//  - Do this ONCE PER FRAME
-	//  - At the beginning of Draw (before drawing *anything*)
+	// Clear the render target and depth buffer (erases what's on the screen) before doign anything else
 	context->ClearRenderTargetView(backBufferRTV.Get(), color);
 	context->ClearDepthStencilView(
 		depthStencilView.Get(),
@@ -369,11 +386,16 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
+	// Render solid entities first
 	for (auto entity : entities)
 	{
 		entity->Draw(camera, ambient, lights);
 	}
 
+	// Draw the skybox after solid entities to avoid overdraw
+	skybox->Draw(context, camera);
+
+	// Sort transparent entities
 	std::sort(transpEntities.begin(), transpEntities.end(), [&](std::shared_ptr<Entity> a, std::shared_ptr<Entity> b) -> bool
 	{
 		XMFLOAT3 positionA = a->GetTransform()->GetPosition();
@@ -386,8 +408,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		return aDist > bDist;
 	});
 
-	skybox->Draw(context, camera);
-
+	// Draw transparent entities with proper blendstate
 	context->OMSetBlendState(alphaBlendState.Get(), 0, 0xFFFFFFFF);
 	for (auto entity : transpEntities)
 	{
@@ -396,11 +417,11 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->RSSetState(0);
 		entity->Draw(camera, ambient, lights);
 	}
+
+	// Reset blendstate after drawing transparent entities
 	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
 
-	// Present the back buffer to the user
-	//  - Puts the final frame we're drawing into the window so the user can see it
-	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
+	// Present the back buffer (i.e. the final frame) to the user at the end of drawing
 	swapChain->Present(vsync ? 1 : 0, 0);
 
 	// Due to the usage of a more sophisticated swap chain,

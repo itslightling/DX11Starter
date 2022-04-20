@@ -1,13 +1,13 @@
 #include "Material.h"
 
 Material::Material(
-	bool _pbr,
+	int _mode,
 	DirectX::XMFLOAT3 _tint,
 	float _roughness,
 	std::shared_ptr<SimpleVertexShader> _vertexShader,
 	std::shared_ptr<SimplePixelShader> _pixelShader)
 {
-	pbr = _pbr;
+	mode = _mode;
 	tint = _tint;
 	roughness = _roughness;
 	normalIntensity = 1.f;
@@ -36,10 +36,22 @@ Material::~Material()
 
 void Material::Activate(Transform* _transform, std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
 {
-	if (pbr) ActivatePBR(_transform, _camera, _ambient, _lights);
-	else ActivateStandard(_transform, _camera, _ambient, _lights);
+	switch (mode)
+	{
+	case MATTYPE_PBR:
+		ActivatePBR(_transform, _camera, _ambient, _lights);
+		break;
+	case MATTYPE_TOON:
+		ActivateToon(_transform, _camera, _ambient, _lights);
+		break;
+	case MATTYPE_STANDARD:
+	default:
+		ActivateStandard(_transform, _camera, _ambient, _lights);
+		break;
+	}
 }
 
+#pragma region Getters
 DirectX::XMFLOAT3 Material::GetTint()
 {
 	return tint;
@@ -109,7 +121,9 @@ std::shared_ptr<SimplePixelShader> Material::GetPixelShader()
 {
 	return pixelShader;
 }
+#pragma endregion
 
+#pragma region Setters
 void Material::SetTint(DirectX::XMFLOAT3 _tint)
 {
 	tint = _tint;
@@ -190,7 +204,9 @@ void Material::SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader)
 {
 	pixelShader = _pixelShader;
 }
+#pragma endregion
 
+#pragma region Utility
 void Material::LoadTexture(const wchar_t* _path, const char* _type, ID3D11Device* _device, ID3D11DeviceContext* _context)
 {
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceView;
@@ -215,7 +231,9 @@ void Material::PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11Shade
 {
 	textures.insert({ _name, _texture });
 }
+#pragma endregion
 
+#pragma region Internal Material Activation
 void Material::ActivateStandard(Transform* _transform, std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
 {
 	vertexShader->SetMatrix4x4("world", _transform->GetWorldMatrix());
@@ -235,18 +253,12 @@ void Material::ActivateStandard(Transform* _transform, std::shared_ptr<Camera> _
 	pixelShader->SetFloat3("ambient", _ambient);
 	pixelShader->SetFloat3("emitAmount", GetEmitAmount());
 	pixelShader->SetFloat3("tint", GetTint());
-	pixelShader->SetFloat3("rimTint", GetRimTint());
-	pixelShader->SetFloat3("outlineTint", GetOutlineTint());
-	pixelShader->SetFloat("outlineThickness", GetOutlineThickness());
-	pixelShader->SetFloat("rimCutoff", GetRimCutoff());
 	pixelShader->SetFloat("lightCount", (int)_lights.size());
 	pixelShader->SetInt("hasAlbedoMap", (int)hasAlbedoMap);
 	pixelShader->SetInt("hasEmissiveMap", (int)hasEmissiveMap);
 	pixelShader->SetInt("hasSpecularMap", (int)hasSpecularMap);
 	pixelShader->SetInt("hasNormalMap", (int)hasNormalMap);
 	pixelShader->SetInt("hasReflectionMap", (int)hasReflectionMap);
-	pixelShader->SetInt("hasRampDiffuse", (int)hasRampDiffuse);
-	pixelShader->SetInt("hasRampSpecular", (int)hasRampSpecular);
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
 	pixelShader->CopyAllBufferData();
 	pixelShader->SetShader();
@@ -288,3 +300,48 @@ void Material::ActivatePBR(Transform* _transform, std::shared_ptr<Camera> _camer
 		pixelShader->SetSamplerState(s.first.c_str(), s.second.Get());
 	}
 }
+
+void Material::ActivateToon(Transform* _transform, std::shared_ptr<Camera> _camera, DirectX::XMFLOAT3 _ambient, std::vector<Light> _lights)
+{
+	vertexShader->SetMatrix4x4("world", _transform->GetWorldMatrix());
+	vertexShader->SetMatrix4x4("worldInvTranspose", _transform->GetWorldMatrixInverseTranspose());
+	vertexShader->SetMatrix4x4("view", _camera->GetViewMatrix());
+	vertexShader->SetMatrix4x4("projection", _camera->GetProjectionMatrix());
+	vertexShader->CopyAllBufferData();
+	vertexShader->SetShader();
+
+	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
+	pixelShader->SetFloat("roughness", GetRoughness());
+	pixelShader->SetFloat("normalIntensity", GetNormalIntensity());
+	pixelShader->SetFloat("alpha", GetAlpha());
+	pixelShader->SetFloat("cutoff", GetCutoff());
+	pixelShader->SetFloat2("scale", GetUVScale());
+	pixelShader->SetFloat2("offset", GetUVOffset());
+	pixelShader->SetFloat3("ambient", _ambient);
+	pixelShader->SetFloat3("emitAmount", GetEmitAmount());
+	pixelShader->SetFloat3("tint", GetTint());
+	pixelShader->SetFloat3("rimTint", GetRimTint());
+	pixelShader->SetFloat3("outlineTint", GetOutlineTint());
+	pixelShader->SetFloat("outlineThickness", GetOutlineThickness());
+	pixelShader->SetFloat("rimCutoff", GetRimCutoff());
+	pixelShader->SetFloat("lightCount", (int)_lights.size());
+	pixelShader->SetInt("hasAlbedoMap", (int)hasAlbedoMap);
+	pixelShader->SetInt("hasEmissiveMap", (int)hasEmissiveMap);
+	pixelShader->SetInt("hasSpecularMap", (int)hasSpecularMap);
+	pixelShader->SetInt("hasNormalMap", (int)hasNormalMap);
+	pixelShader->SetInt("hasRampDiffuse", (int)hasRampDiffuse);
+	pixelShader->SetInt("hasRampSpecular", (int)hasRampSpecular);
+	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
+	pixelShader->CopyAllBufferData();
+	pixelShader->SetShader();
+
+	for (auto& t : textures)
+	{
+		pixelShader->SetShaderResourceView(t.first.c_str(), t.second.Get());
+	}
+	for (auto& s : samplers)
+	{
+		pixelShader->SetSamplerState(s.first.c_str(), s.second.Get());
+	}
+}
+#pragma endregion
