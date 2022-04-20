@@ -39,7 +39,7 @@ float RampDiffuse(float original)
 
 float RampSpecular(float original)
 {
-	if (original < 0.95f) return 0.0f;
+	if (original < 0.9f) return 0.0f;
 
 	return 1.0f;
 }
@@ -50,6 +50,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	input.tangent = normalize(input.tangent);
 	input.uv = input.uv * scale + offset;
 	float3 view = getView(cameraPosition, input.worldPosition);
+	float3 normal = input.normal;
 
 	if (hasNormalMap > 0)
 	{
@@ -57,7 +58,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal));
 		float3 B = cross(T, input.normal);
 		float3x3 TBN = float3x3(T, B, input.normal);
-		input.normal = mul(unpackedNormal, TBN);
+		normal = mul(unpackedNormal, TBN);
 	}
 
 	float specularValue = 1;
@@ -84,13 +85,14 @@ float4 main(VertexToPixel input) : SV_TARGET
 			break;
 		}
 
-		float diffuse = RampDiffuse(getDiffuse(input.normal, toLight));
-		float specular = RampSpecular(calculateSpecular(input.normal, toLight, view, specularValue, diffuse) * roughness);
+		float diffuse = RampDiffuse(getDiffuse(normal, toLight));
+		float specular = RampSpecular(calculateSpecular(normal, toLight, view, specularValue, diffuse) * roughness);
 
 		light += (diffuse * surface.rgb + specular) * attenuate * lights[i].Intensity * lights[i].Color;
 	}
 
-	float3 final = float3(light/* + (emit * emitAmount)*/);
+	float4 rim = RampSpecular(1 - dot(view, input.normal));
+	float3 final = float3(light + rim/* + (emit * emitAmount)*/);
 
 	return float4(pow(final, 1.0f / 2.2f), albedo.a);
 }
