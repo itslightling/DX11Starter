@@ -24,6 +24,8 @@ cbuffer ExternalData : register(b0)
 	float alpha;
 	float cutoff;
 	float roughness;
+	float normalIntensity;
+
 	int hasSpecularMap;
 	int hasReflectionMap;
 
@@ -58,7 +60,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	if (hasNormalMap > 0)
 	{
 		float3 unpackedNormal = Normal.Sample(BasicSampler, input.uv).rgb * 2 - 1;
-		float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal));
+		float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal)) * normalIntensity;
 		float3 B = cross(T, input.normal);
 		float3x3 TBN = float3x3(T, B, input.normal);
 		input.normal = mul(unpackedNormal, TBN);

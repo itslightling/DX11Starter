@@ -10,6 +10,7 @@ Material::Material(
 	pbr = _pbr;
 	tint = _tint;
 	roughness = _roughness;
+	normalIntensity = 1.f;
 	alpha = 1;
 	cutoff = 0;
 	vertexShader = _vertexShader;
@@ -62,6 +63,11 @@ float Material::GetAlpha()
 float Material::GetCutoff()
 {
 	return cutoff;
+}
+
+float Material::GetNormalIntensity()
+{
+	return normalIntensity;
 }
 
 DirectX::XMFLOAT3 Material::GetEmitAmount()
@@ -120,6 +126,11 @@ void Material::SetCutoff(float _cutoff)
 	cutoff = _cutoff;
 }
 
+void Material::SetNormalIntensity(float _intensity)
+{
+	normalIntensity = _intensity;
+}
+
 void Material::SetEmitAmount(DirectX::XMFLOAT3 _emit)
 {
 	emitAmount = _emit;
@@ -169,6 +180,7 @@ void Material::ActivateStandard(Transform* _transform, std::shared_ptr<Camera> _
 
 	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
 	pixelShader->SetFloat("roughness", GetRoughness());
+	pixelShader->SetFloat("normalIntensity", GetNormalIntensity());
 	pixelShader->SetFloat("alpha", GetAlpha());
 	pixelShader->SetFloat("cutoff", GetCutoff());
 	pixelShader->SetFloat2("scale", GetUVScale());
@@ -208,6 +220,7 @@ void Material::ActivatePBR(Transform* _transform, std::shared_ptr<Camera> _camer
 	pixelShader->SetFloat2("scale", GetUVScale());
 	pixelShader->SetFloat2("offset", GetUVOffset());
 	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
+	pixelShader->SetFloat("normalIntensity", GetNormalIntensity());
 	pixelShader->SetFloat("lightCount", (int)_lights.size());
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
 	pixelShader->CopyAllBufferData();

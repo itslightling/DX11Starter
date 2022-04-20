@@ -14,6 +14,8 @@ cbuffer ExternalData : register(b0)
 	float3 cameraPosition;
 	float lightCount;
 
+	float normalIntensity;
+
 	Light lights[MAX_LIGHTS];
 }
 
@@ -34,7 +36,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float4 albedo = pow(Albedo.Sample(Sampler, input.uv), 2.2f);
 
 	float3 N = Normal.Sample(Sampler, input.uv).rgb * 2 - 1;
-	float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal));
+	float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal)) * normalIntensity;
 	float3 B = cross(T, input.normal);
 	float3x3 TBN = float3x3(T, B, input.normal);
 	input.normal = mul(N, TBN);
