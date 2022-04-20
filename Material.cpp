@@ -23,6 +23,9 @@ Material::Material(
 	hasSpecularMap = false;
 	hasNormalMap = false;
 	hasReflectionMap = false;
+	outlineThickness = 1;
+	rimCutoff = 0.075f;
+	rimTint = DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f);
 }
 
 Material::~Material()
@@ -70,9 +73,29 @@ float Material::GetNormalIntensity()
 	return normalIntensity;
 }
 
+float Material::GetRimCutoff()
+{
+	return rimCutoff;
+}
+
+float Material::GetOutlineThickness()
+{
+	return outlineThickness;
+}
+
 DirectX::XMFLOAT3 Material::GetEmitAmount()
 {
 	return emitAmount;
+}
+
+DirectX::XMFLOAT3 Material::GetOutlineTint()
+{
+	return outlineTint;
+}
+
+DirectX::XMFLOAT3 Material::GetRimTint()
+{
+	return rimTint;
 }
 
 std::shared_ptr<SimpleVertexShader> Material::GetVertexShader()
@@ -131,9 +154,29 @@ void Material::SetNormalIntensity(float _intensity)
 	normalIntensity = _intensity;
 }
 
+void Material::SetRimCutoff(float _cutoff)
+{
+	rimCutoff = _cutoff;
+}
+
+void Material::SetOutlineThickness(float _thickness)
+{
+	outlineThickness = _thickness;
+}
+
 void Material::SetEmitAmount(DirectX::XMFLOAT3 _emit)
 {
 	emitAmount = _emit;
+}
+
+void Material::SetOutlineTint(DirectX::XMFLOAT3 _tint)
+{
+	outlineTint = _tint;
+}
+
+void Material::SetRimTint(DirectX::XMFLOAT3 _tint)
+{
+	rimTint = _tint;
 }
 
 void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader)
@@ -188,6 +231,10 @@ void Material::ActivateStandard(Transform* _transform, std::shared_ptr<Camera> _
 	pixelShader->SetFloat3("ambient", _ambient);
 	pixelShader->SetFloat3("emitAmount", GetEmitAmount());
 	pixelShader->SetFloat3("tint", GetTint());
+	pixelShader->SetFloat3("rimTint", GetRimTint());
+	pixelShader->SetFloat3("outlineTint", GetOutlineTint());
+	pixelShader->SetFloat("outlineThickness", GetOutlineThickness());
+	pixelShader->SetFloat("rimCutoff", GetRimCutoff());
 	pixelShader->SetFloat("lightCount", (int)_lights.size());
 	pixelShader->SetInt("hasAlbedoMap", (int)hasAlbedoMap);
 	pixelShader->SetInt("hasEmissiveMap", (int)hasEmissiveMap);

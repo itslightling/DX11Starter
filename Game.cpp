@@ -206,6 +206,7 @@ void Game::LoadTextures()
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[9]->SetOutlineThickness(0);
 
 	materials[10]->PushSampler("BasicSampler", sampler);
 	materials[10]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());

@@ -26,8 +26,8 @@ cbuffer ExternalData : register(b0)
 	float roughness;
 	float normalIntensity;
 
-	float3 outline;
-	float outlineIntensity;
+	float3 outlineTint;
+	float outlineThickness;
 	
 	float3 rimTint;
 	float rimCutoff;
@@ -120,17 +120,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 	if (hasEmissiveMap > 0) emit = Emissive.Sample(BasicSampler, input.uv).rgb;
 
 	float vDotN = (1 - dot(view, input.normal));
-	float rimValue = GetRampSpecular(vDotN * pow(light, 0.075f));
-	float outlineValue = GetRampSpecular(vDotN * 2);
+	float rimValue = GetRampSpecular(vDotN * pow(light, rimCutoff));
+	float outlineValue = GetRampSpecular(vDotN * outlineThickness);
 
 	if (rimValue > 0)
 	{
-		return float4(light + (emit * emitAmount) + float3(1,1,1), alphaValue);
+		return float4(light + (emit * emitAmount) + rimTint, alphaValue);
 	}
 
 	if (outlineValue > 0)
 	{
-		return float4(outlineValue * float3(0,0,0), alphaValue);
+		return float4(outlineValue * outlineTint, alphaValue);
 	}
 
 	float3 final = float3(light + (emit * emitAmount));
