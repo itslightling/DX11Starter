@@ -39,7 +39,9 @@ public:
 	DirectX::XMFLOAT2						GetUVScale();
 	DirectX::XMFLOAT2						GetUVOffset();
 	float									GetRoughness();
-	float									GetEmitAmount();
+	float									GetAlpha();
+	float									GetCutoff();
+	DirectX::XMFLOAT3						GetEmitAmount();
 	std::shared_ptr<SimpleVertexShader>		GetVertexShader();
 	std::shared_ptr<SimplePixelShader>		GetPixelShader();
 
@@ -47,7 +49,9 @@ public:
 	void									SetUVScale(DirectX::XMFLOAT2 _scale);
 	void									SetUVOffset(DirectX::XMFLOAT2 _offset);
 	void									SetRoughness(float _roughness);
-	void									SetEmitAmount(float _emit);
+	void									SetAlpha(float _alpha);
+	void									SetCutoff(float _cutoff);
+	void									SetEmitAmount(DirectX::XMFLOAT3 _emit);
 	void									SetVertexShader(std::shared_ptr<SimpleVertexShader> _vertexShader);
 	void									SetPixelShader(std::shared_ptr<SimplePixelShader> _pixelShader);
 
@@ -55,6 +59,7 @@ public:
 	void									PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler);
 	void									PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _texture);
 
+	bool									hasAlbedoMap;
 	bool									hasEmissiveMap;
 	bool									hasSpecularMap;
 	bool									hasNormalMap;
@@ -74,7 +79,9 @@ private:
 	bool									pbr;
 	DirectX::XMFLOAT3						tint;
 	float									roughness;
-	float									emitAmount;
+	float									alpha;
+	float									cutoff;
+	DirectX::XMFLOAT3						emitAmount;
 	DirectX::XMFLOAT2						uvScale;
 	DirectX::XMFLOAT2						uvOffset;
 	std::shared_ptr<SimpleVertexShader>		vertexShader;

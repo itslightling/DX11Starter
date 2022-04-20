@@ -16,7 +16,13 @@ cbuffer ExternalData : register(b0)
 	float lightCount;
 
 	float3 tint;
+	int hasAlbedoMap;
 
+	float3 emitAmount;
+	int hasEmissiveMap;
+
+	float alpha;
+	float cutoff;
 	float roughness;
 	int hasSpecularMap;
 
@@ -26,9 +32,12 @@ cbuffer ExternalData : register(b0)
 Texture2D Albedo : register(t0);
 Texture2D Specular : register(t1);
 Texture2D Normal : register(t2);
+Texture2D Emissive : register(t3);
+Texture2D RampDiffuse : register(t4);
+Texture2D RampSpecular : register(t5);
 SamplerState BasicSampler : register(s0);
 
-float RampDiffuse(float original)
+float GetRampDiffuse(float original)
 {
 	if (original < 0.25f) return 0.0f;
 	//if (original < 0.5f) return 0.5f;
@@ -37,7 +46,7 @@ float RampDiffuse(float original)
 	return 1;
 }
 
-float RampSpecular(float original)
+float GetRampSpecular(float original)
 {
 	if (original < 0.6f) return 0.0f;
 
@@ -51,6 +60,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 	input.uv = input.uv * scale + offset;
 	float3 view = getView(cameraPosition, input.worldPosition);
 	float3 normal = input.normal;
+
+	float3 surface = tint;
+	float alphaValue = alpha;
+	if (hasAlbedoMap)
+	{
+		float4 sampledAlbedo = Albedo.Sample(BasicSampler, input.uv);
+		if (sampledAlbedo.a < cutoff) discard;
+		float3 albedo = pow(sampledAlbedo.rgb, 2.2f);
+		surface *= albedo.rgb;
+		alphaValue *= sampledAlbedo.a;
+	}
 
 	if (hasNormalMap > 0)
 	{
@@ -66,9 +86,6 @@ float4 main(VertexToPixel input) : SV_TARGET
 	{
 		specularValue = Specular.Sample(BasicSampler, input.uv).r;
 	}
-
-	float4 albedo = pow(Albedo.Sample(BasicSampler, input.uv).rgba, 2.2f);
-	float3 surface = albedo.rgb * tint;
 	float3 light = ambient * surface;
 	for (int i = 0; i < lightCount; i++)
 	{
@@ -85,14 +102,16 @@ float4 main(VertexToPixel input) : SV_TARGET
 			break;
 		}
 
-		float diffuse = RampDiffuse(getDiffuse(normal, toLight));
-		float specular = RampSpecular(calculateSpecular(normal, toLight, view, specularValue, diffuse) * roughness);
+		float diffuse = GetRampDiffuse(getDiffuse(normal, toLight));
+		float specular = GetRampSpecular(calculateSpecular(normal, toLight, view, specularValue, diffuse) * roughness);
 
 		light += (diffuse * surface.rgb + specular) * attenuate * lights[i].Intensity * lights[i].Color;
 	}
 
-	float4 rim = RampSpecular((1 - dot(view, input.normal)) * pow(light, 0.075f));
-	float3 final = float3(light + rim/* + (emit * emitAmount)*/);
+	float3 emit = float3(1, 1, 1);
+	if (hasEmissiveMap > 0) emit = Emissive.Sample(BasicSampler, input.uv).rgb;
+	float4 rim = GetRampSpecular((1 - dot(view, input.normal)) * pow(light, 0.075f));
+	float3 final = float3(light + rim + (emit * emitAmount));
 
-	return float4(pow(final, 1.0f / 2.2f), albedo.a);
+	return float4(pow(final, 1.0f / 2.2f), alphaValue);
 }

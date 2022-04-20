@@ -10,11 +10,14 @@ Material::Material(
 	pbr = _pbr;
 	tint = _tint;
 	roughness = _roughness;
+	alpha = 1;
+	cutoff = 0;
 	vertexShader = _vertexShader;
 	pixelShader = _pixelShader;
 	uvOffset = DirectX::XMFLOAT2(0, 0);
 	uvScale = DirectX::XMFLOAT2(1, 1);
-	emitAmount = 0;
+	emitAmount = DirectX::XMFLOAT3(0, 0, 0);
+	hasAlbedoMap = false;
 	hasEmissiveMap = false;
 	hasSpecularMap = false;
 	hasNormalMap = false;
@@ -51,7 +54,17 @@ float Material::GetRoughness()
 	return roughness;
 }
 
-float Material::GetEmitAmount()
+float Material::GetAlpha()
+{
+	return alpha;
+}
+
+float Material::GetCutoff()
+{
+	return cutoff;
+}
+
+DirectX::XMFLOAT3 Material::GetEmitAmount()
 {
 	return emitAmount;
 }
@@ -97,7 +110,17 @@ void Material::SetRoughness(float _roughness)
 	}
 }
 
-void Material::SetEmitAmount(float _emit)
+void Material::SetAlpha(float _alpha)
+{
+	alpha = _alpha;
+}
+
+void Material::SetCutoff(float _cutoff)
+{
+	cutoff = _cutoff;
+}
+
+void Material::SetEmitAmount(DirectX::XMFLOAT3 _emit)
 {
 	emitAmount = _emit;
 }
@@ -118,7 +141,8 @@ void Material::LoadTexture(const wchar_t* _path, const char* _type, ID3D11Device
 	DirectX::CreateWICTextureFromFile(_device, _context, DXCore::GetFullPathTo_Wide(_path).c_str(), 0, shaderResourceView.GetAddressOf());
 	PushTexture(_type, shaderResourceView);
 
-	if (_type == TEXTYPE_EMISSIVE) hasEmissiveMap = true;
+	if (_type == TEXTYPE_ALBEDO) hasAlbedoMap = true;
+	else if (_type == TEXTYPE_EMISSIVE) hasEmissiveMap = true;
 	else if (_type == TEXTYPE_SPECULAR) hasSpecularMap = true;
 	else if (_type == TEXTYPE_NORMAL) hasNormalMap = true;
 	else if (_type == TEXTYPE_REFLECTION) hasReflectionMap = true;
@@ -145,12 +169,15 @@ void Material::ActivateStandard(Transform* _transform, std::shared_ptr<Camera> _
 
 	pixelShader->SetFloat3("cameraPosition", _camera->GetTransform()->GetPosition());
 	pixelShader->SetFloat("roughness", GetRoughness());
+	pixelShader->SetFloat("alpha", GetAlpha());
+	pixelShader->SetFloat("cutoff", GetCutoff());
 	pixelShader->SetFloat2("scale", GetUVScale());
 	pixelShader->SetFloat2("offset", GetUVOffset());
 	pixelShader->SetFloat3("ambient", _ambient);
-	pixelShader->SetFloat("emitAmount", GetEmitAmount());
+	pixelShader->SetFloat3("emitAmount", GetEmitAmount());
 	pixelShader->SetFloat3("tint", GetTint());
 	pixelShader->SetFloat("lightCount", (int)_lights.size());
+	pixelShader->SetInt("hasAlbedoMap", (int)hasAlbedoMap);
 	pixelShader->SetInt("hasEmissiveMap", (int)hasEmissiveMap);
 	pixelShader->SetInt("hasSpecularMap", (int)hasSpecularMap);
 	pixelShader->SetInt("hasNormalMap", (int)hasNormalMap);

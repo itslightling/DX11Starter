@@ -7,20 +7,24 @@
 cbuffer ExternalData : register(b0)
 {
 	float3 cameraPosition;
-	float roughness;
+	int hasNormalMap;
 
 	float2 offset;
 	float2 scale;
 
 	float3 ambient;
-	float emitAmount;
-
-	float3 tint;
 	float lightCount;
 
+	float3 tint;
+	int hasAlbedoMap;
+
+	float3 emitAmount;
 	int hasEmissiveMap;
+
+	float alpha;
+	float cutoff;
+	float roughness;
 	int hasSpecularMap;
-	int hasNormalMap;
 	int hasReflectionMap;
 
 	Light lights[MAX_LIGHTS];
@@ -39,6 +43,18 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// ensure input normals are normalized
 	input.normal = normalize(input.normal);
 	input.tangent = normalize(input.tangent);
+
+	float3 surface = tint;
+	float alphaValue = alpha;
+	if (hasAlbedoMap)
+	{
+		float4 sampledAlbedo = Albedo.Sample(BasicSampler, input.uv);
+		if (sampledAlbedo.a < cutoff) discard;
+		float3 albedo = pow(sampledAlbedo.rgb, 2.2f);
+		surface *= albedo.rgb;
+		alphaValue *= sampledAlbedo.a;
+	}
+
 	if (hasNormalMap > 0)
 	{
 		float3 unpackedNormal = Normal.Sample(BasicSampler, input.uv).rgb * 2 - 1;
@@ -52,12 +68,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// view only needs calculated once, so pre-calculate here and pass it to lights
 	float3 view = getView(cameraPosition, input.worldPosition);
 
-	float4 albedo = pow(Albedo.Sample(BasicSampler, input.uv).rgba, 2.2f);
 	float specular = 1;
 	if (hasSpecularMap > 0) specular = Specular.Sample(BasicSampler, input.uv).r;
 	float3 emit = float3(1, 1, 1);
 	if (hasEmissiveMap > 0) emit = Emissive.Sample(BasicSampler, input.uv).rgb;
-	float3 surface = albedo.rgb * tint;
 	float3 light = ambient * surface;
 
 	// loop through lights
@@ -83,5 +97,5 @@ float4 main(VertexToPixel input) : SV_TARGET
 		final = lerp(final, reflCol, getFresnel(input.normal, view, F0_NON_METAL));
 	}
 
-	return float4(pow(final, 1.0f/2.2f), albedo.a);
+	return float4(pow(final, 1.0f/2.2f), alphaValue);
 }

@@ -80,6 +80,7 @@ void Game::LoadShadersAndMaterials()
 	pixelShaderToon = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"ToonShader.cso").c_str());
 
 	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	XMFLOAT3 deepPurple = XMFLOAT3(0.1f, 0.02f, 0.1f);
 
 	materials = {
 		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
@@ -92,6 +93,7 @@ void Game::LoadShadersAndMaterials()
 		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
 		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
 		std::make_shared<Material>(false, white, 0, vertexShader, pixelShaderToon),
+		std::make_shared<Material>(false, deepPurple, 0, vertexShader, pixelShaderToon),
 	};
 }
 
@@ -188,12 +190,21 @@ void Game::LoadTextures()
 	materials[8]->PushSampler("BasicSampler", sampler);
 	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	// this texture has some weird noise artifacts in the holes of the floor that I probably just never noticed
+	// when I used it in the game I made it for because it was also had Cutoff in Unity. add high cutoff, but not too high for distant mipmaps
+	materials[8]->SetCutoff(0.9f);
+	// this is just to test alpha
+	materials[8]->SetAlpha(0.8f);
 
 	materials[9]->PushSampler("BasicSampler", sampler);
 	materials[9]->SetRoughness(1);
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+
+	materials[10]->PushSampler("BasicSampler", sampler);
+	materials[10]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[10]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
 }
 
 // --------------------------------------------------------
@@ -257,10 +268,10 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[9], shapes[3]),
 		std::make_shared<Entity>(materials[9], shapes[3]),
 		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
 	};
 
 	transpEntities = {
