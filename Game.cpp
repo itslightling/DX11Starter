@@ -190,8 +190,10 @@ void Game::LoadTextures()
 	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 
 	materials[9]->PushSampler("BasicSampler", sampler);
-	materials[9]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[9]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[9]->SetRoughness(1);
+	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 }
 
 // --------------------------------------------------------

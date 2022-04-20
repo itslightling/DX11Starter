@@ -66,7 +66,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		switch (lights[i].Type)
 		{
 		case LIGHT_TYPE_DIRECTIONAL:
-			light += calculateDirectionalLight(lights[i], input.normal, view, roughness, surface, specular);
+			light += calculateDirectionalLight(lights[i], -input.normal, view, roughness, surface, specular);
 			break;
 		case LIGHT_TYPE_POINT:
 			light += calculatePointLight(lights[i], input.normal, view, input.worldPosition, roughness, surface, specular);

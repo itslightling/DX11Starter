@@ -16,6 +16,8 @@ cbuffer ExternalData : register(b0)
 	float lightCount;
 
 	float3 tint;
+
+	float roughness;
 	int hasSpecularMap;
 
 	Light lights[MAX_LIGHTS];
@@ -25,6 +27,22 @@ Texture2D Albedo : register(t0);
 Texture2D Specular : register(t1);
 Texture2D Normal : register(t2);
 SamplerState BasicSampler : register(s0);
+
+float RampDiffuse(float original)
+{
+	if (original < 0.25f) return 0.0f;
+	//if (original < 0.5f) return 0.5f;
+	if (original < 0.75f) return 0.75f;
+
+	return 1;
+}
+
+float RampSpecular(float original)
+{
+	if (original < 0.95f) return 0.0f;
+
+	return 1.0f;
+}
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
@@ -42,10 +60,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 		input.normal = mul(unpackedNormal, TBN);
 	}
 
-	float specular = 1;
+	float specularValue = 1;
 	if (hasSpecularMap > 0)
 	{
-		specular = Specular.Sample(BasicSampler, input.uv).r;
+		specularValue = Specular.Sample(BasicSampler, input.uv).r;
 	}
 
 	float4 albedo = pow(Albedo.Sample(BasicSampler, input.uv).rgba, 2.2f);
@@ -53,15 +71,23 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3 light = ambient * surface;
 	for (int i = 0; i < lightCount; i++)
 	{
+		float3 toLight = float3(0, 0, 0);
+		float attenuate = 1;
 		switch (lights[i].Type)
 		{
 		case LIGHT_TYPE_DIRECTIONAL:
-			light += calculateDirectionalLight(lights[i], -input.normal, view, 1 /*roughness*/, surface, specular);
+			toLight = normalize(lights[i].Direction);
 			break;
 		case LIGHT_TYPE_POINT:
-			light += calculatePointLight(lights[i], input.normal, view, input.worldPosition, 1 /*roughness*/, surface, specular);
+			toLight = normalize(lights[i].Position - input.worldPosition);
+			attenuate = getAttenuation(lights[i].Position, input.worldPosition, lights[i].Range);
 			break;
 		}
+
+		float diffuse = RampDiffuse(getDiffuse(input.normal, toLight));
+		float specular = RampSpecular(calculateSpecular(input.normal, toLight, view, specularValue, diffuse) * roughness);
+
+		light += (diffuse * surface.rgb + specular) * attenuate * lights[i].Intensity * lights[i].Color;
 	}
 
 	float3 final = float3(light/* + (emit * emitAmount)*/);
