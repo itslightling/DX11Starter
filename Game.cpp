@@ -188,6 +188,10 @@ void Game::LoadTextures()
 	materials[8]->PushSampler("BasicSampler", sampler);
 	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+
+	materials[9]->PushSampler("BasicSampler", sampler);
+	materials[9]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[9]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 }
 
 // --------------------------------------------------------
@@ -195,16 +199,16 @@ void Game::LoadTextures()
 // --------------------------------------------------------
 void Game::LoadLighting()
 {
-	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
+	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
 
 	lights = {
 		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
-		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.25f),
-		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.25f),
-		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
-		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
-		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.35f, 10),
-		Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 0.35f, 20),
+		//Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.25f),
+		//Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.25f),
+		//Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
+		//Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
+		//Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.35f, 10),
+		//Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 0.35f, 20),
 	};
 }
 
