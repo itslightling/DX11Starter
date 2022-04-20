@@ -72,5 +72,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBufferVS;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBlendState;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> backfaceRasterState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> clampSampler;
 };
 

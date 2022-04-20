@@ -127,6 +127,11 @@ void Game::LoadTextures()
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	device->CreateRasterizerState(&rastDesc, backfaceRasterState.GetAddressOf());
 
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	device->CreateSamplerState(&sampDesc, clampSampler.GetAddressOf());
+
 	demoCubemap = CreateCubemap(
 		device,
 		context,
@@ -202,6 +207,7 @@ void Game::LoadTextures()
 	materials[8]->SetAlpha(0.8f);
 
 	materials[9]->PushSampler("BasicSampler", sampler);
+	materials[9]->PushSampler("ClampSampler", clampSampler);
 	materials[9]->SetRoughness(1);
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
@@ -209,7 +215,11 @@ void Game::LoadTextures()
 	materials[9]->SetOutlineThickness(0);
 
 	materials[10]->PushSampler("BasicSampler", sampler);
+	materials[10]->PushSampler("ClampSampler", clampSampler);
 	materials[10]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[10]->LoadTexture(L"Assets/Textures/Ramps/toonRamp3.png", TEXTYPE_RAMPDIFFUSE, device.Get(), context.Get());
+	materials[10]->LoadTexture(L"Assets/Textures/Ramps/toonRampSpecular.png", TEXTYPE_RAMPSPECULAR, device.Get(), context.Get());
+	materials[10]->SetRimCutoff(0.15f);
 	materials[10]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
 }
 

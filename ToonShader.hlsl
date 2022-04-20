@@ -33,6 +33,8 @@ cbuffer ExternalData : register(b0)
 	float rimCutoff;
 
 	int hasSpecularMap;
+	int hasRampDiffuse;
+	int hasRampSpecular;
 
 	Light lights[MAX_LIGHTS];
 }
@@ -44,12 +46,13 @@ Texture2D Emissive : register(t3);
 Texture2D RampDiffuse : register(t4);
 Texture2D RampSpecular : register(t5);
 SamplerState BasicSampler : register(s0);
+SamplerState ClampSampler : register(s1);
 
 float GetRampDiffuse(float original)
 {
 	if (original < 0.25f) return 0.0f;
-	//if (original < 0.5f) return 0.5f;
-	if (original < 0.75f) return 0.75f;
+	if (original < 0.33f) return 0.33f;
+	if (original < 0.8f) return 0.8f;
 
 	return 1;
 }
@@ -110,8 +113,24 @@ float4 main(VertexToPixel input) : SV_TARGET
 			break;
 		}
 
-		float diffuse = GetRampDiffuse(getDiffuse(normal, toLight));
-		float specular = GetRampSpecular(calculateSpecular(normal, toLight, view, specularValue, diffuse) * roughness);
+		float diffuse = 0;
+		float specular = 0;
+		if (hasRampDiffuse > 0)
+		{
+			diffuse = RampDiffuse.Sample(ClampSampler, float2(getDiffuse(normal, toLight), 0)).r;
+		}
+		else
+		{
+			diffuse = GetRampDiffuse(getDiffuse(normal, toLight));
+		}
+		if (hasRampSpecular > 0)
+		{
+			specular = RampSpecular.Sample(ClampSampler, float2(calculateSpecular(normal, toLight, view, specularValue, diffuse) * roughness, 0));
+		}
+		else
+		{
+			specular = GetRampSpecular(calculateSpecular(normal, toLight, view, specularValue, diffuse) * roughness);
+		}
 
 		light += (diffuse * surface.rgb + specular) * attenuate * lights[i].Intensity * lights[i].Color;
 	}

@@ -17,6 +17,8 @@ constexpr auto TEXTYPE_SPECULAR = "Specular";
 constexpr auto TEXTYPE_REFLECTION = "Reflection";
 constexpr auto TEXTYPE_ROUGHNESS = "Roughness";
 constexpr auto TEXTYPE_METALNESS = "Metalness";
+constexpr auto TEXTYPE_RAMPDIFFUSE = "RampDiffuse";
+constexpr auto TEXTYPE_RAMPSPECULAR = "RampSpecular";
 
 class Material
 {
@@ -74,6 +76,8 @@ public:
 	bool									hasSpecularMap;
 	bool									hasNormalMap;
 	bool									hasReflectionMap;
+	bool									hasRampDiffuse;
+	bool									hasRampSpecular;
 private:
 	void									ActivateStandard(
 												Transform* _transform,

@@ -23,6 +23,8 @@ Material::Material(
 	hasSpecularMap = false;
 	hasNormalMap = false;
 	hasReflectionMap = false;
+	hasRampDiffuse = false;
+	hasRampSpecular = false;
 	outlineThickness = 1;
 	rimCutoff = 0.075f;
 	rimTint = DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f);
@@ -200,6 +202,8 @@ void Material::LoadTexture(const wchar_t* _path, const char* _type, ID3D11Device
 	else if (_type == TEXTYPE_SPECULAR) hasSpecularMap = true;
 	else if (_type == TEXTYPE_NORMAL) hasNormalMap = true;
 	else if (_type == TEXTYPE_REFLECTION) hasReflectionMap = true;
+	else if (_type == TEXTYPE_RAMPDIFFUSE) hasRampDiffuse = true;
+	else if (_type == TEXTYPE_RAMPSPECULAR) hasRampSpecular = true;
 }
 
 void Material::PushSampler(std::string _name, Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler)
@@ -241,6 +245,8 @@ void Material::ActivateStandard(Transform* _transform, std::shared_ptr<Camera> _
 	pixelShader->SetInt("hasSpecularMap", (int)hasSpecularMap);
 	pixelShader->SetInt("hasNormalMap", (int)hasNormalMap);
 	pixelShader->SetInt("hasReflectionMap", (int)hasReflectionMap);
+	pixelShader->SetInt("hasRampDiffuse", (int)hasRampDiffuse);
+	pixelShader->SetInt("hasRampSpecular", (int)hasRampSpecular);
 	pixelShader->SetData("lights", &_lights[0], sizeof(Light) * (int)_lights.size());
 	pixelShader->CopyAllBufferData();
 	pixelShader->SetShader();
