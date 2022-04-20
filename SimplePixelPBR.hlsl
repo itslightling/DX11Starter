@@ -28,19 +28,26 @@ SamplerState Sampler : register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
+	// normalize inputs and set uv scaling
 	input.normal = normalize(input.normal);
 	input.tangent = normalize(input.tangent);
+	input.uv = input.uv * scale + offset;
 
-	float3 view = normalize(cameraPosition - input.worldPosition);
-
+	// gets albedo with gamma correction
 	float4 albedo = pow(Albedo.Sample(Sampler, input.uv), 2.2f);
 
+	// gets normal map
 	float3 normal = getNormal(Sampler, Normal, input.uv, input.normal, input.tangent, normalIntensity);
 
+	// get pbr values
 	float roughness = Roughness.Sample(Sampler, input.uv).r;
 	float metalness = Metalness.Sample(Sampler, input.uv).r;
 	float3 specular = lerp(F0_NON_METAL.rrr, albedo.rgb, metalness);
 
+	// pre-calculate view
+	float3 view = normalize(cameraPosition - input.worldPosition);
+
+	// calculate lighting
 	float3 light = float3(0, 0, 0);
 	for (int i = 0; i < lightCount; i++)
 	{
@@ -55,7 +62,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 		}
 	}
 
+	// calculate the final color value with lighting
 	float3 final = light;
 
+	// gamma-correct the final value
 	return float4(pow(final, 1.0f / 2.2f), albedo.a);
 }
