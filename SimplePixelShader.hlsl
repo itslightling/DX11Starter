@@ -45,6 +45,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// ensure input normals are normalized
 	input.normal = normalize(input.normal);
 	input.tangent = normalize(input.tangent);
+	float3 normal = input.normal;
 
 	float3 surface = tint;
 	float alphaValue = alpha;
@@ -59,11 +60,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	if (hasNormalMap > 0)
 	{
-		float3 unpackedNormal = Normal.Sample(BasicSampler, input.uv).rgb * 2 - 1;
-		float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal)) * normalIntensity;
-		float3 B = cross(T, input.normal);
-		float3x3 TBN = float3x3(T, B, input.normal);
-		input.normal = mul(unpackedNormal, TBN);
+		normal = getNormal(BasicSampler, Normal, input.uv, input.normal, input.tangent, normalIntensity);
 	}
 	input.uv = input.uv * scale + offset;
 
@@ -82,10 +79,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 		switch (lights[i].Type)
 		{
 		case LIGHT_TYPE_DIRECTIONAL:
-			light += calculateDirectionalLight(lights[i], -input.normal, view, roughness, surface, specular);
+			light += calculateDirectionalLight(lights[i], -normal, view, roughness, surface, specular);
 			break;
 		case LIGHT_TYPE_POINT:
-			light += calculatePointLight(lights[i], input.normal, view, input.worldPosition, roughness, surface, specular);
+			light += calculatePointLight(lights[i], normal, view, input.worldPosition, roughness, surface, specular);
 			break;
 		}
 	}
@@ -94,9 +91,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	if (hasReflectionMap > 0)
 	{
-		float3 reflVec = getReflection(view, input.normal);
+		float3 reflVec = getReflection(view, normal);
 		float3 reflCol = Reflection.Sample(BasicSampler, reflVec).rgba;
-		final = lerp(final, reflCol, getFresnel(input.normal, view, F0_NON_METAL));
+		final = lerp(final, reflCol, getFresnel(normal, view, F0_NON_METAL));
 	}
 
 	return float4(pow(final, 1.0f/2.2f), alphaValue);

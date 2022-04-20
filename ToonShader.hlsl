@@ -85,11 +85,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	if (hasNormalMap > 0)
 	{
-		float3 unpackedNormal = Normal.Sample(BasicSampler, input.uv).rgb * 2 - 1;
-		float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal)) * normalIntensity;
-		float3 B = cross(T, input.normal);
-		float3x3 TBN = float3x3(T, B, input.normal);
-		normal = mul(unpackedNormal, TBN);
+		normal = getNormal(BasicSampler, Normal, input.uv, input.normal, input.tangent, normalIntensity);
 	}
 
 	float specularValue = 1;

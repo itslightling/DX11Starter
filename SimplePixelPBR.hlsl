@@ -35,11 +35,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float4 albedo = pow(Albedo.Sample(Sampler, input.uv), 2.2f);
 
-	float3 N = Normal.Sample(Sampler, input.uv).rgb * 2 - 1;
-	float3 T = normalize(input.tangent - input.normal * dot(input.tangent, input.normal)) * normalIntensity;
-	float3 B = cross(T, input.normal);
-	float3x3 TBN = float3x3(T, B, input.normal);
-	input.normal = mul(N, TBN);
+	float3 normal = getNormal(Sampler, Normal, input.uv, input.normal, input.tangent, normalIntensity);
 
 	float roughness = Roughness.Sample(Sampler, input.uv).r;
 	float metalness = Metalness.Sample(Sampler, input.uv).r;
@@ -51,10 +47,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 		switch (lights[i].Type)
 		{
 		case LIGHT_TYPE_DIRECTIONAL:
-			light += directionalLightPBR(lights[i], input.normal, view, roughness, metalness, albedo, specular);
+			light += directionalLightPBR(lights[i], normal, view, roughness, metalness, albedo, specular);
 			break;
 		case LIGHT_TYPE_POINT:
-			light += pointLightPBR(lights[i], input.normal, view, roughness, metalness, albedo, specular, input.worldPosition);
+			light += pointLightPBR(lights[i], normal, view, roughness, metalness, albedo, specular, input.worldPosition);
 			break;
 		}
 	}

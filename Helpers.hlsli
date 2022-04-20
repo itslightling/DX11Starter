@@ -60,4 +60,14 @@ float getFresnel(float3 normal, float3 view, float specularValue)
 	return specularValue + (1 - specularValue) * pow(1 - saturate(dot(normal, view)), 5);
 }
 
+// gets normal: n*TBN, where n = sampled normal map, N = normal vector, T = processed tangent vector (t*N-dot(t,N), B = processed bitangent vector (cross(T,N))
+float3 getNormal(SamplerState normalSampler, Texture2D map, float2 uv, float3 normal, float3 tangent, float intensity)
+{
+	float3 n = map.Sample(normalSampler, uv).rgb * 2 - 1;
+	float3 T = normalize(tangent - normal * dot(tangent, normal)) * intensity;
+	float3 B = cross(T, normal);
+	float3x3 TBN = float3x3(T, B, normal);
+	return mul(n, TBN);
+}
+
 #endif
