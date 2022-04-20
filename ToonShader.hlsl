@@ -39,7 +39,7 @@ float RampDiffuse(float original)
 
 float RampSpecular(float original)
 {
-	if (original < 0.9f) return 0.0f;
+	if (original < 0.6f) return 0.0f;
 
 	return 1.0f;
 }
@@ -91,7 +91,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		light += (diffuse * surface.rgb + specular) * attenuate * lights[i].Intensity * lights[i].Color;
 	}
 
-	float4 rim = RampSpecular(1 - dot(view, input.normal));
+	float4 rim = RampSpecular((1 - dot(view, input.normal)) * pow(light, 0.075f));
 	float3 final = float3(light + rim/* + (emit * emitAmount)*/);
 
 	return float4(pow(final, 1.0f / 2.2f), albedo.a);
