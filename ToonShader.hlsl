@@ -40,11 +40,12 @@ cbuffer ExternalData : register(b0)
 }
 
 Texture2D Albedo : register(t0);
-Texture2D Specular : register(t1);
-Texture2D Normal : register(t2);
+Texture2D Normal : register(t1);
+Texture2D Specular : register(t2);
 Texture2D Emissive : register(t3);
-Texture2D RampDiffuse : register(t4);
-Texture2D RampSpecular : register(t5);
+TextureCube Reflection : register(t4);
+Texture2D RampDiffuse : register(t5);
+Texture2D RampSpecular : register(t6);
 SamplerState BasicSampler : register(s0);
 SamplerState ClampSampler : register(s1);
 

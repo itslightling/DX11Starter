@@ -24,7 +24,7 @@ Texture2D Normal : register(t1);
 Texture2D Roughness : register(t2);
 Texture2D Metalness : register(t3);
 TextureCube Reflection : register(t4);
-SamplerState Sampler : register(s0);
+SamplerState BasicSampler : register(s0);
 
 float4 main(VertexToPixel input) : SV_TARGET
 {
@@ -34,14 +34,14 @@ float4 main(VertexToPixel input) : SV_TARGET
 	input.uv = input.uv * scale + offset;
 
 	// gets albedo with gamma correction
-	float4 albedo = pow(Albedo.Sample(Sampler, input.uv), 2.2f);
+	float4 albedo = pow(Albedo.Sample(BasicSampler, input.uv), 2.2f);
 
 	// gets normal map
-	float3 normal = getNormal(Sampler, Normal, input.uv, input.normal, input.tangent, normalIntensity);
+	float3 normal = getNormal(BasicSampler, Normal, input.uv, input.normal, input.tangent, normalIntensity);
 
 	// get pbr values
-	float roughness = Roughness.Sample(Sampler, input.uv).r;
-	float metalness = Metalness.Sample(Sampler, input.uv).r;
+	float roughness = Roughness.Sample(BasicSampler, input.uv).r;
+	float metalness = Metalness.Sample(BasicSampler, input.uv).r;
 	float3 specular = lerp(F0_NON_METAL.rrr, albedo.rgb, metalness);
 
 	// pre-calculate view

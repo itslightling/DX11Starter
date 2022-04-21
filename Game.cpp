@@ -178,48 +178,48 @@ void Game::LoadTextures()
 
 	materials[1]->PushSampler("BasicSampler", sampler);
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[1]->SetNormalIntensity(2.5f);
 
 	materials[2]->PushSampler("BasicSampler", sampler);
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 
 	materials[3]->PushSampler("BasicSampler", sampler);
 	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 
 	materials[4]->PushSampler("BasicSampler", sampler);
 	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[4]->SetNormalIntensity(0.5f);
 
 	materials[5]->PushSampler("BasicSampler", sampler);
 	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[5]->SetNormalIntensity(3.5f);
 
 	materials[6]->PushSampler("BasicSampler", sampler);
 	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 
 	materials[7]->PushSampler("BasicSampler", sampler);
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[7]->SetNormalIntensity(3.5f);
 
 	materials[8]->PushSampler("BasicSampler", sampler);
@@ -248,16 +248,16 @@ void Game::LoadTextures()
 	materials[10]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
 
 	materials[11]->PushSampler("BasicSampler", sampler);
-	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
 	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
 	materials[11]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
 
 	materials[12]->PushSampler("BasicSampler", sampler);
 	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
-	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[12]->SetCutoff(0.95f);
 
 	materials[13]->PushSampler("BasicSampler", sampler);
