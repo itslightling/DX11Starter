@@ -40,6 +40,15 @@
     <Filter Include="Assets\Textures\PBR">
       <UniqueIdentifier>{5a00f65f-2015-451b-9c46-5131e9fd2555}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Textures\Ramps">
+      <UniqueIdentifier>{e1723348-5c0a-4f5f-8586-ccf0126a4509}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures\Skies\xenskybox">
+      <UniqueIdentifier>{9d91e2a4-da9d-42fe-9427-bfdb10083dd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures\Transparent">
+      <UniqueIdentifier>{513b1278-b493-4dfc-826f-abcd815c0561}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXCore.cpp">
@@ -137,6 +146,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="SimpleVertexPBR.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ToonShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -320,6 +332,99 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="Assets\Textures\PBR\wood_roughness.png">
       <Filter>Assets\Textures\PBR</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Ramps\toonRamp1.png">
+      <Filter>Assets\Textures\Ramps</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Ramps\toonRamp2.png">
+      <Filter>Assets\Textures\Ramps</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Ramps\toonRamp3.png">
+      <Filter>Assets\Textures\Ramps</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Ramps\toonRampSpecular.png">
+      <Filter>Assets\Textures\Ramps</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\warped_plane.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\warped_building.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\warped_archway_inner.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\warped_archway_outer.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\xenskybox\top.png">
+      <Filter>Assets\Textures\Skies\xenskybox</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\xenskybox\back.png">
+      <Filter>Assets\Textures\Skies\xenskybox</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\xenskybox\bottom.png">
+      <Filter>Assets\Textures\Skies\xenskybox</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\xenskybox\front.png">
+      <Filter>Assets\Textures\Skies\xenskybox</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\xenskybox\left.png">
+      <Filter>Assets\Textures\Skies\xenskybox</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Skies\xenskybox\right.png">
+      <Filter>Assets\Textures\Skies\xenskybox</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Models\warped_monke.obj">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\fence_albedo.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\fence_metal.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\fence_normals.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\fence_roughness.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_pattern_albedo.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_pattern_metal.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_pattern_normals.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_pattern_roughness.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_window_albedo.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_window_metal.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_window_normals.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\glass_window_roughness.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\lattice_albedo.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\lattice_metal.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\lattice_normals.png">
+      <Filter>Assets\Textures\Transparent</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\Textures\Transparent\lattice_roughness.png">
+      <Filter>Assets\Textures\Transparent</Filter>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>

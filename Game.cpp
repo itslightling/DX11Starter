@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include "Input.h"
 #include "SimpleShader.h"
+#include <algorithm>
 
 // Needed for a helper function to read compiled shader files from the hard drive
 #pragma comment(lib, "d3dcompiler.lib")
@@ -34,7 +35,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	camera = std::make_shared<Camera>(0.0f, 0.0f, -10.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
+	camera = std::make_shared<Camera>(0.0f, 5.0f, -15.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
 }
 
 // --------------------------------------------------------
@@ -58,8 +59,8 @@ void Game::Init()
 {
 	LoadShadersAndMaterials();
 	LoadTextures();
-	LoadLighting();
-	CreateBasicGeometry();
+	LoadMeshes();
+	LoadScene(0);
 	
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -76,18 +77,26 @@ void Game::LoadShadersAndMaterials()
 	pixelShader = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelShader.cso").c_str());
 	vertexShaderPBR = std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SimpleVertexPBR.cso").c_str());
 	pixelShaderPBR = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SimplePixelPBR.cso").c_str());
+	pixelShaderToon = std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"ToonShader.cso").c_str());
 
 	XMFLOAT3 white = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	XMFLOAT3 deepPurple = XMFLOAT3(0.1f, 0.02f, 0.1f);
 
 	materials = {
-		std::make_shared<Material>(false, white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(true, white, 0, vertexShaderPBR, pixelShaderPBR),
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //0: blueish bronze material with reflection map
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //1: bronze PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //2: cobblestone PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //3: metallic diamond-pattern floor PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //4: paint PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //5: rough metal PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //6: scratched metal PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //7: wood PBR
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //8: transparent floor grate for scene 1
+		std::make_shared<Material>(MATTYPE_TOON, white, 0, vertexShader, pixelShaderToon), //9: cushion toon
+		std::make_shared<Material>(MATTYPE_TOON, deepPurple, 0, vertexShader, pixelShaderToon), //10: emissive lava toon
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //11: lava toon
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShader, pixelShaderPBR), //12: fence PBR
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //13: transparent floor grate for scene 2
 	};
 }
 
@@ -96,6 +105,8 @@ void Game::LoadShadersAndMaterials()
 // --------------------------------------------------------
 void Game::LoadTextures()
 {
+	#pragma region Sampler Initialization
+	// Sampler description for wrapped texture sampling
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -105,7 +116,45 @@ void Game::LoadTextures()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
 
-	demoCubemap = CreateCubemap(
+	// Blend description for alpha support
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	device->CreateBlendState(&blendDesc, alphaBlendState.GetAddressOf());
+
+	// Rasterizer description for alpha support/rendering backfaces only
+	D3D11_RASTERIZER_DESC rastDesc = {};
+	rastDesc.DepthClipEnable = true;
+	rastDesc.CullMode = D3D11_CULL_FRONT;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	device->CreateRasterizerState(&rastDesc, backfaceRasterState.GetAddressOf());
+
+	// Sampler description for clamping
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	device->CreateSamplerState(&sampDesc, clampSampler.GetAddressOf());
+	#pragma endregion
+
+	#pragma region Cubemap Setup
+	demoCubemap1 = CreateCubemap(
+		device,
+		context,
+		L"Assets/Textures/Skies/xenskybox/right.png",
+		L"Assets/Textures/Skies/xenskybox/left.png",
+		L"Assets/Textures/Skies/xenskybox/top.png",
+		L"Assets/Textures/Skies/xenskybox/bottom.png",
+		L"Assets/Textures/Skies/xenskybox/front.png",
+		L"Assets/Textures/Skies/xenskybox/back.png"
+	);
+
+	demoCubemap2 = CreateCubemap(
 		device,
 		context,
 		L"Assets/Textures/Skies/planets/right.png",
@@ -115,19 +164,24 @@ void Game::LoadTextures()
 		L"Assets/Textures/Skies/planets/front.png",
 		L"Assets/Textures/Skies/planets/back.png"
 	);
+	#pragma endregion
 
+	#pragma region Material Setup
 	materials[0]->PushSampler("BasicSampler", sampler);
-	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
+	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap1);
 	materials[0]->hasReflectionMap = true;
-	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[0]->SetNormalIntensity(2.5f);
+	materials[0]->SetTint(DirectX::XMFLOAT3(0.25f, 0.25f, 0.85f));
 
 	materials[1]->PushSampler("BasicSampler", sampler);
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[1]->SetNormalIntensity(2.5f);
 
 	materials[2]->PushSampler("BasicSampler", sampler);
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -146,12 +200,14 @@ void Game::LoadTextures()
 	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[4]->LoadTexture(L"Assets/Textures/PBR/paint_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[4]->SetNormalIntensity(0.5f);
 
 	materials[5]->PushSampler("BasicSampler", sampler);
 	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[5]->LoadTexture(L"Assets/Textures/PBR/rough_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[5]->SetNormalIntensity(3.5f);
 
 	materials[6]->PushSampler("BasicSampler", sampler);
 	materials[6]->LoadTexture(L"Assets/Textures/PBR/scratched_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -164,30 +220,58 @@ void Game::LoadTextures()
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[7]->LoadTexture(L"Assets/Textures/PBR/wood_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[7]->SetNormalIntensity(3.5f);
+
+	materials[8]->PushSampler("BasicSampler", sampler);
+	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[8]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	// this texture has some weird noise artifacts in the holes of the floor that I probably just never noticed
+	// when I used it in the game I made it for because it was also had Cutoff in Unity. add high cutoff, but not too high for distant mipmaps
+	materials[8]->SetCutoff(0.9f);
+	// this is just to test alpha
+	materials[8]->SetAlpha(0.8f);
+
+	materials[9]->PushSampler("BasicSampler", sampler);
+	materials[9]->PushSampler("ClampSampler", clampSampler);
+	materials[9]->SetRoughness(1);
+	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[9]->LoadTexture(L"Assets/Textures/WithNormals/cushion_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[9]->SetOutlineThickness(0);
+
+	materials[10]->PushSampler("BasicSampler", sampler);
+	materials[10]->PushSampler("ClampSampler", clampSampler);
+	materials[10]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[10]->LoadTexture(L"Assets/Textures/Ramps/toonRamp3.png", TEXTYPE_RAMPDIFFUSE, device.Get(), context.Get());
+	materials[10]->LoadTexture(L"Assets/Textures/Ramps/toonRampSpecular.png", TEXTYPE_RAMPSPECULAR, device.Get(), context.Get());
+	materials[10]->SetRimCutoff(0.15f);
+	materials[10]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
+
+	materials[11]->PushSampler("BasicSampler", sampler);
+	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[11]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
+
+	materials[12]->PushSampler("BasicSampler", sampler);
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[12]->SetCutoff(0.95f);
+
+	materials[13]->PushSampler("BasicSampler", sampler);
+	materials[13]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[13]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[13]->SetAlpha(0.85f);
+	materials[13]->SetCutoff(0.95f);
+	#pragma endregion
 }
 
 // --------------------------------------------------------
-// Instantiates all the lighting in the scene
+// Loads the geometry we're going to draw
 // --------------------------------------------------------
-void Game::LoadLighting()
-{
-	ambient = XMFLOAT3(0.1f, 0.1f, 0.15f);
-
-	lights = {
-		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
-		Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.25f),
-		Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.25f),
-		Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
-		Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
-		Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.35f, 10),
-		Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 0.35f, 20),
-	};
-}
-
-// --------------------------------------------------------
-// Creates the geometry we're going to draw - a single triangle for now
-// --------------------------------------------------------
-void Game::CreateBasicGeometry()
+void Game::LoadMeshes()
 {
 	shapes = {
 		std::make_shared<Mesh>(
@@ -211,9 +295,144 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
 			device, context),
+
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_plane.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_building.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_archway_outer.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_archway_inner.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_monke.obj").c_str(),
+			device, context),
 	};
 
+	skybox1 = std::make_shared<Sky>(
+		shapes[0],
+		std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
+		demoCubemap1,
+		sampler,
+		device
+	);
+
+	skybox2 = std::make_shared<Sky>(
+		shapes[0],
+		std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
+		demoCubemap2,
+		sampler,
+		device
+	);
+}
+
+// --------------------------------------------------------
+// Loads the entities, lighting, etc. based on scene
+// --------------------------------------------------------
+void Game::LoadScene(int _currentScene)
+{
+	currentScene = _currentScene;
+	switch (currentScene)
+	{
+	case 0:
+		LoadScene1();
+		break;
+	case 1:
+		LoadScene2();
+		break;
+	}
+}
+
+void Game::LoadScene1()
+{
+	camera->GetTransform()->SetPosition(0.0f, 9.0f, -15.0f);
+	camera->GetTransform()->SetRotation(0.1f, 0, 0);
+
+	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
+
+	lights = {
+		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
+	};
+
+	#pragma region Entity Definition
 	entities = {
+		std::make_shared<Entity>(materials[2], shapes[7]), //0
+		std::make_shared<Entity>(materials[0], shapes[8]), //1
+		std::make_shared<Entity>(materials[0], shapes[8]), //2
+		std::make_shared<Entity>(materials[0], shapes[8]), //3
+		std::make_shared<Entity>(materials[0], shapes[8]), //4
+		std::make_shared<Entity>(materials[7], shapes[9]), //5
+		std::make_shared<Entity>(materials[11], shapes[10]), //6
+		std::make_shared<Entity>(materials[10], shapes[11]), //7
+	};
+
+	transpEntities = {
+		std::make_shared<Entity>(materials[12], shapes[5]), //0
+		std::make_shared<Entity>(materials[12], shapes[5]), //1
+		std::make_shared<Entity>(materials[12], shapes[5]), //2
+		std::make_shared<Entity>(materials[13], shapes[3]), //3
+		std::make_shared<Entity>(materials[13], shapes[3]), //4
+		std::make_shared<Entity>(materials[13], shapes[3]), //5
+	};
+	#pragma endregion
+
+	#pragma region Transform Setup
+	entities[1]->GetTransform()->SetPosition(-5, 0, 5);
+	entities[2]->GetTransform()->SetPosition(5, 0, 5);
+	entities[3]->GetTransform()->SetPosition(5, 0, -5);
+	entities[4]->GetTransform()->SetPosition(-5, 0, -5);
+	entities[5]->GetTransform()->SetPosition(0, 3, 5);
+
+	entities[6]->GetTransform()->SetPosition(0, 3, 5);
+	entities[5]->GetTransform()->SetRotation(0, 1.57f, 0);
+	entities[6]->GetTransform()->SetRotation(0, 1.57f, 0);
+	entities[5]->GetTransform()->SetScale(0.75f, 0.75f, 0.75f);
+	entities[6]->GetTransform()->SetScale(0.75f, 0.75f, 0.75f);
+
+	entities[7]->GetTransform()->SetPosition(0, 20, 20);
+	entities[7]->GetTransform()->SetScale(8, 8, 8);
+	entities[7]->GetTransform()->SetRotation(-0.5f, 0, 0);
+
+	transpEntities[0]->GetTransform()->SetPosition(0, 1, 5);
+	transpEntities[0]->GetTransform()->SetRotation(1.57079f, 0, 0);
+	transpEntities[0]->GetTransform()->SetScale(6, 6, 1);
+	transpEntities[1]->GetTransform()->SetPosition(-5, 1, 0);
+	transpEntities[1]->GetTransform()->SetRotation(1.57079f, 1.57079f, 0);
+	transpEntities[1]->GetTransform()->SetScale(6, 6, 1);
+	transpEntities[2]->GetTransform()->SetPosition(5, 1, 0);
+	transpEntities[2]->GetTransform()->SetRotation(1.57079f, -1.57079f, 0);
+	transpEntities[2]->GetTransform()->SetScale(6, 6, 1);
+
+	transpEntities[3]->GetTransform()->SetScale(-30, -30, -30);
+	transpEntities[4]->GetTransform()->SetScale(-60, -60, -60);
+	transpEntities[5]->GetTransform()->SetScale(-90, -90, -90);
+	#pragma endregion
+
+	materials[0]->SwapTexture(TEXTYPE_REFLECTION, demoCubemap1);
+	materials[0]->SetUVScale(DirectX::XMFLOAT2(10, 10));
+	materials[2]->SetUVScale(DirectX::XMFLOAT2(5, 5));
+}
+
+void Game::LoadScene2()
+{
+	camera->GetTransform()->SetPosition(0.0f, 0.0f, -10.0f);
+	camera->GetTransform()->SetRotation(0, 0, 0);
+
+	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
+
+	lights = {
+		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
+	};
+
+	#pragma region Entity Definition
+	entities = {
+		// PBR
 		std::make_shared<Entity>(materials[1], shapes[3]),
 		std::make_shared<Entity>(materials[2], shapes[3]),
 		std::make_shared<Entity>(materials[3], shapes[3]),
@@ -221,24 +440,72 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Entity>(materials[5], shapes[3]),
 		std::make_shared<Entity>(materials[6], shapes[3]),
 		std::make_shared<Entity>(materials[7], shapes[3]),
+		// std
 		std::make_shared<Entity>(materials[0], shapes[3]),
+		// toon
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
 	};
 
-	for (int i = 0; i < entities.size(); ++i)
-	{
-		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 2) + i + 0.5f) * 2.5f, 0, 0);
-	}
+	transpEntities = {
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+	};
+	#pragma endregion
 
-	skybox = std::make_shared<Sky>(
-		shapes[0],
-		std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
-		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
-		demoCubemap,
-		sampler,
-		device
-	);
+	#pragma region Transform Setup
+	transpEntities[0]->GetTransform()->SetPosition(0, 3, -5);
+	transpEntities[1]->GetTransform()->SetPosition(0, 3, 0);
+	transpEntities[2]->GetTransform()->SetPosition(0, 3, 5);
+	for (int i = 0; i < entities.size() / 2; ++i)
+	{
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + i + 0.5f) * 2.5f, -1.5f, 0);
+	}
+	
+	for (int i = entities.size() / 2; i < entities.size(); ++i)
+	{
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + (i - (int)entities.size() / 2) + 0.5f) * 2.5f, 1.5f, 0);
+	}
+	
+	for (int i = 0; i < transpEntities.size(); ++i)
+	{
+		transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
+	}
+	#pragma endregion
+
+	materials[0]->SwapTexture(TEXTYPE_REFLECTION, demoCubemap2);
+	materials[0]->SetUVScale(DirectX::XMFLOAT2(1, 1));
+	materials[2]->SetUVScale(DirectX::XMFLOAT2(1, 1));
+	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(1, 1, 1));
 }
 
+void Game::UpdateScene1(float deltaTime, float totalTime)
+{
+	for (int i = 1; i < 5; ++i)
+	{
+		DirectX::XMFLOAT3 pos = entities[i]->GetTransform()->GetPosition();
+		entities[i]->GetTransform()->SetPosition(pos.x, sin(totalTime / 2) * 0.5f + 1, pos.z);
+		entities[i]->GetTransform()->SetRotation(0, cos(totalTime / 4) * 4, 0);
+	}
+
+	materials[11]->SetUVOffset(DirectX::XMFLOAT2(0, -tan(totalTime / 4) * 0.15f));
+	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(sin(totalTime / 1) * 0.25f + 0.25f, sin(totalTime / 1) * 0.25f + 0.25f, sin(totalTime / 1) * 0.25f + 0.25f));
+}
+
+void Game::UpdateScene2(float deltaTime, float totalTime)
+{
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		entities[i]->GetTransform()->SetRotation(0, sin(totalTime / 720) * 360, 0);
+	}
+}
 
 // --------------------------------------------------------
 // Handle resizing DirectX "stuff" to match the new window size.
@@ -261,12 +528,22 @@ void Game::Update(float deltaTime, float totalTime)
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
 
-	camera->Update(deltaTime);
+	if (Input::GetInstance().KeyDown(0x31))
+		LoadScene(0);
+	else if (Input::GetInstance().KeyDown(0x32))
+		LoadScene(1);
 
-	for (int i = 0; i < entities.size(); ++i)
+	switch (currentScene)
 	{
-		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
+	case 0:
+		UpdateScene1(deltaTime, totalTime);
+		break;
+	case 1:
+		UpdateScene2(deltaTime, totalTime);
+		break;
 	}
+
+	camera->Update(deltaTime);
 }
 
 // --------------------------------------------------------
@@ -277,9 +554,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	// Background color for clearing
 	static const float color[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
 
-	// Clear the render target and depth buffer (erases what's on the screen)
-	//  - Do this ONCE PER FRAME
-	//  - At the beginning of Draw (before drawing *anything*)
+	// Clear the render target and depth buffer (erases what's on the screen) before doign anything else
 	context->ClearRenderTargetView(backBufferRTV.Get(), color);
 	context->ClearDepthStencilView(
 		depthStencilView.Get(),
@@ -287,16 +562,50 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
+	// Render solid entities first
 	for (auto entity : entities)
 	{
 		entity->Draw(camera, ambient, lights);
 	}
 
-	skybox->Draw(context, camera);
+	// Draw the skybox after solid entities to avoid overdraw
+	switch (currentScene)
+	{
+	case 0:
+		skybox1->Draw(context, camera);
+		break;
+	case 1:
+		skybox2->Draw(context, camera);
+		break;
+	}
 
-	// Present the back buffer to the user
-	//  - Puts the final frame we're drawing into the window so the user can see it
-	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
+	// Sort transparent entities
+	std::sort(transpEntities.begin(), transpEntities.end(), [&](std::shared_ptr<Entity> a, std::shared_ptr<Entity> b) -> bool
+	{
+		XMFLOAT3 positionA = a->GetTransform()->GetPosition();
+		XMFLOAT3 positionB = b->GetTransform()->GetPosition();
+		XMFLOAT3 camPos = camera->GetTransform()->GetPosition();
+
+		// compare distance
+		float aDist = XMVectorGetX(XMVector3Length(XMLoadFloat3(&positionA) - XMLoadFloat3(&camPos)));
+		float bDist = XMVectorGetX(XMVector3Length(XMLoadFloat3(&positionB) - XMLoadFloat3(&camPos)));
+		return aDist > bDist;
+	});
+
+	// Draw transparent entities with proper blendstate
+	context->OMSetBlendState(alphaBlendState.Get(), 0, 0xFFFFFFFF);
+	for (auto entity : transpEntities)
+	{
+		context->RSSetState(backfaceRasterState.Get());
+		entity->Draw(camera, ambient, lights);
+		context->RSSetState(0);
+		entity->Draw(camera, ambient, lights);
+	}
+
+	// Reset blendstate after drawing transparent entities
+	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
+
+	// Present the back buffer (i.e. the final frame) to the user at the end of drawing
 	swapChain->Present(vsync ? 1 : 0, 0);
 
 	// Due to the usage of a more sophisticated swap chain,
