@@ -83,20 +83,20 @@ void Game::LoadShadersAndMaterials()
 	XMFLOAT3 deepPurple = XMFLOAT3(0.1f, 0.02f, 0.1f);
 
 	materials = {
-		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //0
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //1
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //2
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //3
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //4
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //5
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //6
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //7
-		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //8
-		std::make_shared<Material>(MATTYPE_TOON, white, 0, vertexShader, pixelShaderToon), //9
-		std::make_shared<Material>(MATTYPE_TOON, deepPurple, 0, vertexShader, pixelShaderToon), //10
-		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShaderToon), //11
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShader, pixelShaderPBR), //12
-		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //13
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //0: blueish bronze material with reflection map
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //1: bronze PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //2: cobblestone PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //3: metallic diamond-pattern floor PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //4: paint PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //5: rough metal PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //6: scratched metal PBR
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //7: wood PBR
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //8: transparent floor grate for scene 1
+		std::make_shared<Material>(MATTYPE_TOON, white, 0, vertexShader, pixelShaderToon), //9: cushion toon
+		std::make_shared<Material>(MATTYPE_TOON, deepPurple, 0, vertexShader, pixelShaderToon), //10: emissive lava toon
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //11: lava toon
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShader, pixelShaderPBR), //12: fence PBR
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //13: transparent floor grate for scene 2
 	};
 }
 
@@ -174,6 +174,7 @@ void Game::LoadTextures()
 	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 	materials[0]->SetNormalIntensity(2.5f);
+	materials[0]->SetTint(DirectX::XMFLOAT3(0.25f, 0.25f, 0.85f));
 
 	materials[1]->PushSampler("BasicSampler", sampler);
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -350,8 +351,8 @@ void Game::LoadScene(int _currentScene)
 
 void Game::LoadScene1()
 {
-	camera->GetTransform()->SetPosition(0.0f, 5.0f, -15.0f);
-	camera->GetTransform()->SetRotation(0, 0, 0);
+	camera->GetTransform()->SetPosition(0.0f, 9.0f, -15.0f);
+	camera->GetTransform()->SetRotation(0.1f, 0, 0);
 
 	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
 
@@ -482,6 +483,7 @@ void Game::LoadScene2()
 	materials[0]->SwapTexture(TEXTYPE_REFLECTION, demoCubemap2);
 	materials[0]->SetUVScale(DirectX::XMFLOAT2(1, 1));
 	materials[2]->SetUVScale(DirectX::XMFLOAT2(1, 1));
+	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(1, 1, 1));
 }
 
 void Game::UpdateScene1(float deltaTime, float totalTime)
@@ -494,7 +496,7 @@ void Game::UpdateScene1(float deltaTime, float totalTime)
 	}
 
 	materials[11]->SetUVOffset(DirectX::XMFLOAT2(0, -tan(totalTime / 4) * 0.15f));
-	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f));
+	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(sin(totalTime / 1) * 0.25f + 0.25f, sin(totalTime / 1) * 0.25f + 0.25f, sin(totalTime / 1) * 0.25f + 0.25f));
 }
 
 void Game::UpdateScene2(float deltaTime, float totalTime)
