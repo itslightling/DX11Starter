@@ -41,8 +41,12 @@ private:
 
 	void LoadShadersAndMaterials();
 	void LoadTextures();
-	void LoadLighting();
-	void CreateBasicGeometry();
+	void LoadMeshes();
+	void LoadScene();
+	void LoadScene1();
+	void LoadScene2();
+	void UpdateScene1(float deltaTime, float totalTime);
+	void UpdateScene2(float deltaTime, float totalTime);
 	
 	// Shaders and shader-related constructs
 	std::shared_ptr<SimplePixelShader> pixelShader;
@@ -63,9 +67,11 @@ private:
 	std::vector<Light> lights;
 	DirectX::XMFLOAT3 ambient;
 	// A9 Normalmaps & Cubemaps
-	std::shared_ptr<Sky> skybox;
+	std::shared_ptr<Sky> skybox1;
+	std::shared_ptr<Sky> skybox2;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> demoCubemap;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> demoCubemap1;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> demoCubemap2;
 
 	std::vector<std::shared_ptr<Entity>> transpEntities;
 
@@ -73,5 +79,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11BlendState> alphaBlendState;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> backfaceRasterState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> clampSampler;
+
+	int currentScene;
 };
 

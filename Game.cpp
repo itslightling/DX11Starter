@@ -36,6 +36,7 @@ Game::Game(HINSTANCE hInstance)
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
 	camera = std::make_shared<Camera>(0.0f, 5.0f, -15.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
+	currentScene = 0;
 }
 
 // --------------------------------------------------------
@@ -59,8 +60,8 @@ void Game::Init()
 {
 	LoadShadersAndMaterials();
 	LoadTextures();
-	LoadLighting();
-	CreateBasicGeometry();
+	LoadMeshes();
+	LoadScene();
 	
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -142,8 +143,8 @@ void Game::LoadTextures()
 	device->CreateSamplerState(&sampDesc, clampSampler.GetAddressOf());
 	#pragma endregion
 
-	// Initialize skybox
-	demoCubemap = CreateCubemap(
+	#pragma region Cubemap Setup
+	demoCubemap1 = CreateCubemap(
 		device,
 		context,
 		L"Assets/Textures/Skies/xenskybox/right.png",
@@ -154,9 +155,21 @@ void Game::LoadTextures()
 		L"Assets/Textures/Skies/xenskybox/back.png"
 	);
 
+	demoCubemap2 = CreateCubemap(
+		device,
+		context,
+		L"Assets/Textures/Skies/planets/right.png",
+		L"Assets/Textures/Skies/planets/left.png",
+		L"Assets/Textures/Skies/planets/up.png",
+		L"Assets/Textures/Skies/planets/down.png",
+		L"Assets/Textures/Skies/planets/front.png",
+		L"Assets/Textures/Skies/planets/back.png"
+	);
+	#pragma endregion
+
 	#pragma region Material Setup
 	materials[0]->PushSampler("BasicSampler", sampler);
-	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
+	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap1);
 	materials[0]->hasReflectionMap = true;
 	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
 	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
@@ -258,31 +271,10 @@ void Game::LoadTextures()
 }
 
 // --------------------------------------------------------
-// Instantiates all the lighting in the scene
+// Loads the geometry we're going to draw
 // --------------------------------------------------------
-void Game::LoadLighting()
+void Game::LoadMeshes()
 {
-	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
-
-	lights = {
-		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
-
-		// extra lights for testing
-		//Light::Directional(XMFLOAT3(-0.25f, -1, 0.75f), XMFLOAT3(1, 1, 1), 0.25f),
-		//Light::Directional(XMFLOAT3(-1, 1, -0.5f), XMFLOAT3(1, 1, 1), 0.25f),
-		//Light::Point(XMFLOAT3(-1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
-		//Light::Point(XMFLOAT3(1.5f, 0, 0), XMFLOAT3(1, 1, 1), 0.35f, 10),
-		//Light::Point(XMFLOAT3(0, 2, 0), XMFLOAT3(1, 0, 0), 0.35f, 10),
-		//Light::Point(XMFLOAT3(-27.5f, 0, 0), XMFLOAT3(1, 1, 0.5f), 0.35f, 20),
-	};
-}
-
-// --------------------------------------------------------
-// Creates the geometry we're going to draw - a single triangle for now
-// --------------------------------------------------------
-void Game::CreateBasicGeometry()
-{
-	#pragma region Mesh Loading
 	shapes = {
 		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/cube.obj").c_str(),
@@ -322,27 +314,49 @@ void Game::CreateBasicGeometry()
 			GetFullPathTo("Assets/Models/warped_monke.obj").c_str(),
 			device, context),
 	};
-	#pragma endregion
+
+	skybox1 = std::make_shared<Sky>(
+		shapes[0],
+		std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
+		demoCubemap1,
+		sampler,
+		device
+	);
+
+	skybox2 = std::make_shared<Sky>(
+		shapes[0],
+		std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
+		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
+		demoCubemap2,
+		sampler,
+		device
+	);
+}
+
+void Game::LoadScene()
+{
+	switch (currentScene)
+	{
+	case 0:
+		LoadScene1();
+		break;
+	case 1:
+		LoadScene2();
+		break;
+	}
+}
+
+void Game::LoadScene1()
+{
+	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
+
+	lights = {
+		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
+	};
 
 	#pragma region Entity Definition
 	entities = {
-		//std::make_shared<Entity>(materials[1], shapes[3]),
-		//std::make_shared<Entity>(materials[2], shapes[3]),
-		//std::make_shared<Entity>(materials[3], shapes[3]),
-		//std::make_shared<Entity>(materials[4], shapes[3]),
-		//std::make_shared<Entity>(materials[5], shapes[3]),
-		//std::make_shared<Entity>(materials[6], shapes[3]),
-		//std::make_shared<Entity>(materials[7], shapes[3]),
-		//std::make_shared<Entity>(materials[0], shapes[3]),
-		//
-		//std::make_shared<Entity>(materials[9], shapes[3]),
-		//std::make_shared<Entity>(materials[9], shapes[3]),
-		//std::make_shared<Entity>(materials[9], shapes[3]),
-		//std::make_shared<Entity>(materials[9], shapes[3]),
-		//std::make_shared<Entity>(materials[10], shapes[3]),
-		//std::make_shared<Entity>(materials[10], shapes[3]),
-		//std::make_shared<Entity>(materials[10], shapes[3]),
-		//std::make_shared<Entity>(materials[10], shapes[3]),
 		std::make_shared<Entity>(materials[2], shapes[7]), //0
 		std::make_shared<Entity>(materials[0], shapes[8]), //1
 		std::make_shared<Entity>(materials[0], shapes[8]), //2
@@ -354,9 +368,6 @@ void Game::CreateBasicGeometry()
 	};
 
 	transpEntities = {
-		//std::make_shared<Entity>(materials[8], shapes[3]),
-		//std::make_shared<Entity>(materials[8], shapes[3]),
-		//std::make_shared<Entity>(materials[8], shapes[3]),
 		std::make_shared<Entity>(materials[12], shapes[5]), //0
 		std::make_shared<Entity>(materials[12], shapes[5]), //1
 		std::make_shared<Entity>(materials[12], shapes[5]), //2
@@ -393,36 +404,80 @@ void Game::CreateBasicGeometry()
 	transpEntities[2]->GetTransform()->SetRotation(1.57079f, -1.57079f, 0);
 	transpEntities[2]->GetTransform()->SetScale(6, 6, 1);
 
-	//transpEntities[3]->GetTransform()->SetPosition(0, 3, -5);
-	//transpEntities[4]->GetTransform()->SetPosition(0, 3, 0);
-	//transpEntities[5]->GetTransform()->SetPosition(0, 3, 5);
 	transpEntities[3]->GetTransform()->SetScale(-30, -30, -30);
 	transpEntities[4]->GetTransform()->SetScale(-60, -60, -60);
 	transpEntities[5]->GetTransform()->SetScale(-90, -90, -90);
-	//for (int i = 0; i < entities.size() / 2; ++i)
-	//{
-	//	entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + i + 0.5f) * 2.5f, -1.5f, 0);
-	//}
-	//
-	//for (int i = entities.size() / 2; i < entities.size(); ++i)
-	//{
-	//	entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + (i - (int)entities.size() / 2) + 0.5f) * 2.5f, 1.5f, 0);
-	//}
-	//
-	//for (int i = 0; i < transpEntities.size(); ++i)
-	//{
-	//	transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
-	//}
+	#pragma endregion
+}
+
+void Game::LoadScene2()
+{
+	#pragma region Entity Definition
+	entities = {
+		// PBR
+		std::make_shared<Entity>(materials[1], shapes[3]),
+		std::make_shared<Entity>(materials[2], shapes[3]),
+		std::make_shared<Entity>(materials[3], shapes[3]),
+		std::make_shared<Entity>(materials[4], shapes[3]),
+		std::make_shared<Entity>(materials[5], shapes[3]),
+		std::make_shared<Entity>(materials[6], shapes[3]),
+		std::make_shared<Entity>(materials[7], shapes[3]),
+		// std
+		std::make_shared<Entity>(materials[0], shapes[3]),
+		// toon
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[9], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[10], shapes[3]),
+	};
+
+	transpEntities = {
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[8], shapes[3]),
+	};
 	#pragma endregion
 
-	skybox = std::make_shared<Sky>(
-		shapes[0],
-		std::make_shared<SimpleVertexShader>(device, context, GetFullPathTo_Wide(L"SkyboxVertexShader.cso").c_str()),
-		std::make_shared<SimplePixelShader>(device, context, GetFullPathTo_Wide(L"SkyboxPixelShader.cso").c_str()),
-		demoCubemap,
-		sampler,
-		device
-	);
+	#pragma region Transform Setup
+	transpEntities[0]->GetTransform()->SetPosition(0, 3, -5);
+	transpEntities[1]->GetTransform()->SetPosition(0, 3, 0);
+	transpEntities[2]->GetTransform()->SetPosition(0, 3, 5);
+	for (int i = 0; i < entities.size() / 2; ++i)
+	{
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + i + 0.5f) * 2.5f, -1.5f, 0);
+	}
+	
+	for (int i = entities.size() / 2; i < entities.size(); ++i)
+	{
+		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + (i - (int)entities.size() / 2) + 0.5f) * 2.5f, 1.5f, 0);
+	}
+	
+	for (int i = 0; i < transpEntities.size(); ++i)
+	{
+		transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
+	}
+	#pragma endregion
+}
+
+void Game::UpdateScene1(float deltaTime, float totalTime)
+{
+	for (int i = 1; i < 5; ++i)
+	{
+		DirectX::XMFLOAT3 pos = entities[i]->GetTransform()->GetPosition();
+		entities[i]->GetTransform()->SetPosition(pos.x, sin(totalTime / 2) * 0.5f + 1, pos.z);
+		entities[i]->GetTransform()->SetRotation(0, cos(totalTime / 4) * 4, 0);
+	}
+
+	materials[11]->SetUVOffset(DirectX::XMFLOAT2(0, -tan(totalTime / 4) * 0.15f));
+	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f));
+}
+
+void Game::UpdateScene2(float deltaTime, float totalTime)
+{
 }
 
 
@@ -447,17 +502,17 @@ void Game::Update(float deltaTime, float totalTime)
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
 
-	camera->Update(deltaTime);
-
-	for (int i = 1; i < 5; ++i)
+	switch (currentScene)
 	{
-		DirectX::XMFLOAT3 pos = entities[i]->GetTransform()->GetPosition();
-		entities[i]->GetTransform()->SetPosition(pos.x, sin(totalTime / 2) * 0.5f + 1, pos.z);
-		entities[i]->GetTransform()->SetRotation(0, cos(totalTime / 4) * 4, 0);
+	case 0:
+		UpdateScene1(deltaTime, totalTime);
+		break;
+	case 1:
+		UpdateScene2(deltaTime, totalTime);
+		break;
 	}
 
-	materials[11]->SetUVOffset(DirectX::XMFLOAT2(0, -tan(totalTime / 4) * 0.15f));
-	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f));
+	camera->Update(deltaTime);
 }
 
 // --------------------------------------------------------
@@ -483,7 +538,13 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 
 	// Draw the skybox after solid entities to avoid overdraw
-	skybox->Draw(context, camera);
+	switch (currentScene)
+	{
+	case 0:
+		skybox1->Draw(context, camera);
+	case 1:
+		skybox2->Draw(context, camera);
+	}
 
 	// Sort transparent entities
 	std::sort(transpEntities.begin(), transpEntities.end(), [&](std::shared_ptr<Entity> a, std::shared_ptr<Entity> b) -> bool
