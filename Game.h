@@ -42,7 +42,7 @@ private:
 	void LoadShadersAndMaterials();
 	void LoadTextures();
 	void LoadMeshes();
-	void LoadScene();
+	void LoadScene(int _currentScene);
 	void LoadScene1();
 	void LoadScene2();
 	void UpdateScene1(float deltaTime, float totalTime);

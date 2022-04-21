@@ -231,6 +231,10 @@ void Material::PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11Shade
 {
 	textures.insert({ _name, _texture });
 }
+void Material::SwapTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _newTexture)
+{
+	textures[_name] = _newTexture;
+}
 #pragma endregion
 
 #pragma region Internal Material Activation

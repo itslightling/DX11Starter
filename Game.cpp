@@ -36,7 +36,6 @@ Game::Game(HINSTANCE hInstance)
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
 	camera = std::make_shared<Camera>(0.0f, 5.0f, -15.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
-	currentScene = 0;
 }
 
 // --------------------------------------------------------
@@ -61,7 +60,7 @@ void Game::Init()
 	LoadShadersAndMaterials();
 	LoadTextures();
 	LoadMeshes();
-	LoadScene();
+	LoadScene(0);
 	
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -175,7 +174,6 @@ void Game::LoadTextures()
 	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
 	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
 	materials[0]->SetNormalIntensity(2.5f);
-	materials[0]->SetUVScale(DirectX::XMFLOAT2(10, 10));
 
 	materials[1]->PushSampler("BasicSampler", sampler);
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -189,7 +187,6 @@ void Game::LoadTextures()
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
-	materials[2]->SetUVScale(DirectX::XMFLOAT2(5, 5));
 
 	materials[3]->PushSampler("BasicSampler", sampler);
 	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -334,8 +331,12 @@ void Game::LoadMeshes()
 	);
 }
 
-void Game::LoadScene()
+// --------------------------------------------------------
+// Loads the entities, lighting, etc. based on scene
+// --------------------------------------------------------
+void Game::LoadScene(int _currentScene)
 {
+	currentScene = _currentScene;
 	switch (currentScene)
 	{
 	case 0:
@@ -349,6 +350,9 @@ void Game::LoadScene()
 
 void Game::LoadScene1()
 {
+	camera->GetTransform()->SetPosition(0.0f, 5.0f, -15.0f);
+	camera->GetTransform()->SetRotation(0, 0, 0);
+
 	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
 
 	lights = {
@@ -408,10 +412,23 @@ void Game::LoadScene1()
 	transpEntities[4]->GetTransform()->SetScale(-60, -60, -60);
 	transpEntities[5]->GetTransform()->SetScale(-90, -90, -90);
 	#pragma endregion
+
+	materials[0]->SwapTexture(TEXTYPE_REFLECTION, demoCubemap1);
+	materials[0]->SetUVScale(DirectX::XMFLOAT2(10, 10));
+	materials[2]->SetUVScale(DirectX::XMFLOAT2(5, 5));
 }
 
 void Game::LoadScene2()
 {
+	camera->GetTransform()->SetPosition(0.0f, 0.0f, -10.0f);
+	camera->GetTransform()->SetRotation(0, 0, 0);
+
+	ambient = XMFLOAT3(0.01f, 0.01f, 0.015f);
+
+	lights = {
+		Light::Directional(XMFLOAT3(1, 0.5f, -0.5f), XMFLOAT3(1, 1, 1), 1.0f),
+	};
+
 	#pragma region Entity Definition
 	entities = {
 		// PBR
@@ -461,6 +478,10 @@ void Game::LoadScene2()
 		transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
 	}
 	#pragma endregion
+
+	materials[0]->SwapTexture(TEXTYPE_REFLECTION, demoCubemap2);
+	materials[0]->SetUVScale(DirectX::XMFLOAT2(1, 1));
+	materials[2]->SetUVScale(DirectX::XMFLOAT2(1, 1));
 }
 
 void Game::UpdateScene1(float deltaTime, float totalTime)
@@ -478,8 +499,11 @@ void Game::UpdateScene1(float deltaTime, float totalTime)
 
 void Game::UpdateScene2(float deltaTime, float totalTime)
 {
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		entities[i]->GetTransform()->SetRotation(0, sin(totalTime / 720) * 360, 0);
+	}
 }
-
 
 // --------------------------------------------------------
 // Handle resizing DirectX "stuff" to match the new window size.
@@ -501,6 +525,11 @@ void Game::Update(float deltaTime, float totalTime)
 {
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
+
+	if (Input::GetInstance().KeyDown(0x31))
+		LoadScene(0);
+	else if (Input::GetInstance().KeyDown(0x32))
+		LoadScene(1);
 
 	switch (currentScene)
 	{
@@ -542,8 +571,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 	case 0:
 		skybox1->Draw(context, camera);
+		break;
 	case 1:
 		skybox2->Draw(context, camera);
+		break;
 	}
 
 	// Sort transparent entities

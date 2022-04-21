@@ -98,6 +98,12 @@ public:
 											/// <param name="_name">The type of texture this is (see TEXTYPE_{types}; should match shader Texture2D buffers)</param>
 											/// <param name="_texture">The texture to add</param>
 	void									PushTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _texture);
+											/// <summary>
+											/// Swaps a texture on the material
+											/// </summary>
+											/// <param name="_name">The type of texture this is (see TEXTYPE_{types}; should match shader Texture2D buffers)</param>
+											/// <param name="_texture">The texture to swap with</param>
+	void									SwapTexture(std::string _name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _newTexture);
 
 	bool									hasAlbedoMap;
 	bool									hasEmissiveMap;
