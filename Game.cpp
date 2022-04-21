@@ -35,7 +35,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	camera = std::make_shared<Camera>(0.0f, 0.0f, -10.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
+	camera = std::make_shared<Camera>(0.0f, 5.0f, -15.0f, (float)width / height, 60, 0.01f, 1000.0f, 5.0f);
 }
 
 // --------------------------------------------------------
@@ -83,17 +83,20 @@ void Game::LoadShadersAndMaterials()
 	XMFLOAT3 deepPurple = XMFLOAT3(0.1f, 0.02f, 0.1f);
 
 	materials = {
-		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR),
-		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader),
-		std::make_shared<Material>(MATTYPE_TOON, white, 0, vertexShader, pixelShaderToon),
-		std::make_shared<Material>(MATTYPE_TOON, deepPurple, 0, vertexShader, pixelShaderToon),
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //0
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //1
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //2
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //3
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //4
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //5
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //6
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShaderPBR, pixelShaderPBR), //7
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //8
+		std::make_shared<Material>(MATTYPE_TOON, white, 0, vertexShader, pixelShaderToon), //9
+		std::make_shared<Material>(MATTYPE_TOON, deepPurple, 0, vertexShader, pixelShaderToon), //10
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShaderToon), //11
+		std::make_shared<Material>(MATTYPE_PBR, white, 0, vertexShader, pixelShaderPBR), //12
+		std::make_shared<Material>(MATTYPE_STANDARD, white, 0, vertexShader, pixelShader), //13
 	};
 }
 
@@ -143,22 +146,23 @@ void Game::LoadTextures()
 	demoCubemap = CreateCubemap(
 		device,
 		context,
-		L"Assets/Textures/Skies/planets/right.png",
-		L"Assets/Textures/Skies/planets/left.png",
-		L"Assets/Textures/Skies/planets/up.png",
-		L"Assets/Textures/Skies/planets/down.png",
-		L"Assets/Textures/Skies/planets/front.png",
-		L"Assets/Textures/Skies/planets/back.png"
+		L"Assets/Textures/Skies/xenskybox/right.png",
+		L"Assets/Textures/Skies/xenskybox/left.png",
+		L"Assets/Textures/Skies/xenskybox/top.png",
+		L"Assets/Textures/Skies/xenskybox/bottom.png",
+		L"Assets/Textures/Skies/xenskybox/front.png",
+		L"Assets/Textures/Skies/xenskybox/back.png"
 	);
 
 	#pragma region Material Setup
 	materials[0]->PushSampler("BasicSampler", sampler);
 	materials[0]->PushTexture(TEXTYPE_REFLECTION, demoCubemap);
 	materials[0]->hasReflectionMap = true;
-	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
-	materials[0]->LoadTexture(L"Assets/Textures/WithNormals/cobblestone_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
-	materials[0]->SetNormalIntensity(3.5f);
+	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[0]->LoadTexture(L"Assets/Textures/PBR/bronze_roughness.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[0]->SetNormalIntensity(2.5f);
+	materials[0]->SetUVScale(DirectX::XMFLOAT2(10, 10));
 
 	materials[1]->PushSampler("BasicSampler", sampler);
 	materials[1]->LoadTexture(L"Assets/Textures/PBR/bronze_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -172,6 +176,7 @@ void Game::LoadTextures()
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
 	materials[2]->LoadTexture(L"Assets/Textures/PBR/cobblestone_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[2]->SetUVScale(DirectX::XMFLOAT2(5, 5));
 
 	materials[3]->PushSampler("BasicSampler", sampler);
 	materials[3]->LoadTexture(L"Assets/Textures/PBR/floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
@@ -230,6 +235,25 @@ void Game::LoadTextures()
 	materials[10]->LoadTexture(L"Assets/Textures/Ramps/toonRampSpecular.png", TEXTYPE_RAMPSPECULAR, device.Get(), context.Get());
 	materials[10]->SetRimCutoff(0.15f);
 	materials[10]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
+
+	materials[11]->PushSampler("BasicSampler", sampler);
+	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_emissive.png", TEXTYPE_EMISSIVE, device.Get(), context.Get());
+	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[11]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-deepfloor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[11]->SetEmitAmount(XMFLOAT3(0.05f, 0.1f, 0.01f));
+
+	materials[12]->PushSampler("BasicSampler", sampler);
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_metal.png", TEXTYPE_METALNESS, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_roughness.png", TEXTYPE_ROUGHNESS, device.Get(), context.Get());
+	materials[12]->LoadTexture(L"Assets/Textures/Transparent/fence_normals.png", TEXTYPE_NORMAL, device.Get(), context.Get());
+	materials[12]->SetCutoff(0.95f);
+
+	materials[13]->PushSampler("BasicSampler", sampler);
+	materials[13]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_albedo.png", TEXTYPE_ALBEDO, device.Get(), context.Get());
+	materials[13]->LoadTexture(L"Assets/Textures/HQGame/structure-endgame-floor_specular.png", TEXTYPE_SPECULAR, device.Get(), context.Get());
+	materials[13]->SetAlpha(0.85f);
+	materials[13]->SetCutoff(0.95f);
 	#pragma endregion
 }
 
@@ -281,52 +305,114 @@ void Game::CreateBasicGeometry()
 		std::make_shared<Mesh>(
 			GetFullPathTo("Assets/Models/quad_double_sided.obj").c_str(),
 			device, context),
+
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_plane.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_building.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_archway_outer.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_archway_inner.obj").c_str(),
+			device, context),
+		std::make_shared<Mesh>(
+			GetFullPathTo("Assets/Models/warped_monke.obj").c_str(),
+			device, context),
 	};
 	#pragma endregion
 
 	#pragma region Entity Definition
 	entities = {
-		std::make_shared<Entity>(materials[1], shapes[3]),
-		std::make_shared<Entity>(materials[2], shapes[3]),
-		std::make_shared<Entity>(materials[3], shapes[3]),
-		std::make_shared<Entity>(materials[4], shapes[3]),
-		std::make_shared<Entity>(materials[5], shapes[3]),
-		std::make_shared<Entity>(materials[6], shapes[3]),
-		std::make_shared<Entity>(materials[7], shapes[3]),
-		std::make_shared<Entity>(materials[0], shapes[3]),
-
-		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[9], shapes[3]),
-		std::make_shared<Entity>(materials[10], shapes[3]),
-		std::make_shared<Entity>(materials[10], shapes[3]),
-		std::make_shared<Entity>(materials[10], shapes[3]),
-		std::make_shared<Entity>(materials[10], shapes[3]),
+		//std::make_shared<Entity>(materials[1], shapes[3]),
+		//std::make_shared<Entity>(materials[2], shapes[3]),
+		//std::make_shared<Entity>(materials[3], shapes[3]),
+		//std::make_shared<Entity>(materials[4], shapes[3]),
+		//std::make_shared<Entity>(materials[5], shapes[3]),
+		//std::make_shared<Entity>(materials[6], shapes[3]),
+		//std::make_shared<Entity>(materials[7], shapes[3]),
+		//std::make_shared<Entity>(materials[0], shapes[3]),
+		//
+		//std::make_shared<Entity>(materials[9], shapes[3]),
+		//std::make_shared<Entity>(materials[9], shapes[3]),
+		//std::make_shared<Entity>(materials[9], shapes[3]),
+		//std::make_shared<Entity>(materials[9], shapes[3]),
+		//std::make_shared<Entity>(materials[10], shapes[3]),
+		//std::make_shared<Entity>(materials[10], shapes[3]),
+		//std::make_shared<Entity>(materials[10], shapes[3]),
+		//std::make_shared<Entity>(materials[10], shapes[3]),
+		std::make_shared<Entity>(materials[2], shapes[7]), //0
+		std::make_shared<Entity>(materials[0], shapes[8]), //1
+		std::make_shared<Entity>(materials[0], shapes[8]), //2
+		std::make_shared<Entity>(materials[0], shapes[8]), //3
+		std::make_shared<Entity>(materials[0], shapes[8]), //4
+		std::make_shared<Entity>(materials[7], shapes[9]), //5
+		std::make_shared<Entity>(materials[11], shapes[10]), //6
+		std::make_shared<Entity>(materials[10], shapes[11]), //7
 	};
 
 	transpEntities = {
-		std::make_shared<Entity>(materials[8], shapes[3]),
-		std::make_shared<Entity>(materials[8], shapes[3]),
-		std::make_shared<Entity>(materials[8], shapes[3]),
+		//std::make_shared<Entity>(materials[8], shapes[3]),
+		//std::make_shared<Entity>(materials[8], shapes[3]),
+		//std::make_shared<Entity>(materials[8], shapes[3]),
+		std::make_shared<Entity>(materials[12], shapes[5]), //0
+		std::make_shared<Entity>(materials[12], shapes[5]), //1
+		std::make_shared<Entity>(materials[12], shapes[5]), //2
+		std::make_shared<Entity>(materials[13], shapes[3]), //3
+		std::make_shared<Entity>(materials[13], shapes[3]), //4
+		std::make_shared<Entity>(materials[13], shapes[3]), //5
 	};
 	#pragma endregion
 
 	#pragma region Transform Setup
-	for (int i = 0; i < entities.size() / 2; ++i)
-	{
-		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + i + 0.5f) * 2.5f, -1.5f, 0);
-	}
+	entities[1]->GetTransform()->SetPosition(-5, 0, 5);
+	entities[2]->GetTransform()->SetPosition(5, 0, 5);
+	entities[3]->GetTransform()->SetPosition(5, 0, -5);
+	entities[4]->GetTransform()->SetPosition(-5, 0, -5);
+	entities[5]->GetTransform()->SetPosition(0, 3, 5);
 
-	for (int i = entities.size() / 2; i < entities.size(); ++i)
-	{
-		entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + (i - (int)entities.size() / 2) + 0.5f) * 2.5f, 1.5f, 0);
-	}
+	entities[6]->GetTransform()->SetPosition(0, 3, 5);
+	entities[5]->GetTransform()->SetRotation(0, 1.57f, 0);
+	entities[6]->GetTransform()->SetRotation(0, 1.57f, 0);
+	entities[5]->GetTransform()->SetScale(0.75f, 0.75f, 0.75f);
+	entities[6]->GetTransform()->SetScale(0.75f, 0.75f, 0.75f);
 
-	for (int i = 0; i < transpEntities.size(); ++i)
-	{
-		transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
-	}
+	entities[7]->GetTransform()->SetPosition(0, 20, 20);
+	entities[7]->GetTransform()->SetScale(8, 8, 8);
+	entities[7]->GetTransform()->SetRotation(-0.5f, 0, 0);
+
+	transpEntities[0]->GetTransform()->SetPosition(0, 1, 5);
+	transpEntities[0]->GetTransform()->SetRotation(1.57079f, 0, 0);
+	transpEntities[0]->GetTransform()->SetScale(6, 6, 1);
+	transpEntities[1]->GetTransform()->SetPosition(-5, 1, 0);
+	transpEntities[1]->GetTransform()->SetRotation(1.57079f, 1.57079f, 0);
+	transpEntities[1]->GetTransform()->SetScale(6, 6, 1);
+	transpEntities[2]->GetTransform()->SetPosition(5, 1, 0);
+	transpEntities[2]->GetTransform()->SetRotation(1.57079f, -1.57079f, 0);
+	transpEntities[2]->GetTransform()->SetScale(6, 6, 1);
+
+	//transpEntities[3]->GetTransform()->SetPosition(0, 3, -5);
+	//transpEntities[4]->GetTransform()->SetPosition(0, 3, 0);
+	//transpEntities[5]->GetTransform()->SetPosition(0, 3, 5);
+	transpEntities[3]->GetTransform()->SetScale(-30, -30, -30);
+	transpEntities[4]->GetTransform()->SetScale(-60, -60, -60);
+	transpEntities[5]->GetTransform()->SetScale(-90, -90, -90);
+	//for (int i = 0; i < entities.size() / 2; ++i)
+	//{
+	//	entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + i + 0.5f) * 2.5f, -1.5f, 0);
+	//}
+	//
+	//for (int i = entities.size() / 2; i < entities.size(); ++i)
+	//{
+	//	entities[i]->GetTransform()->SetPosition((-(int)(entities.size() / 4) + (i - (int)entities.size() / 2) + 0.5f) * 2.5f, 1.5f, 0);
+	//}
+	//
+	//for (int i = 0; i < transpEntities.size(); ++i)
+	//{
+	//	transpEntities[i]->GetTransform()->SetPosition(0, -3.5f, (-(int)(transpEntities.size() / 2) + i) * 2.5f);
+	//}
 	#pragma endregion
 
 	skybox = std::make_shared<Sky>(
@@ -363,11 +449,15 @@ void Game::Update(float deltaTime, float totalTime)
 
 	camera->Update(deltaTime);
 
-	// rotate entities over time
-	for (int i = 0; i < entities.size(); ++i)
+	for (int i = 1; i < 5; ++i)
 	{
-		entities[i]->GetTransform()->SetRotation(sin(totalTime / 720) * 360, 0, 0);
+		DirectX::XMFLOAT3 pos = entities[i]->GetTransform()->GetPosition();
+		entities[i]->GetTransform()->SetPosition(pos.x, sin(totalTime / 2) * 0.5f + 1, pos.z);
+		entities[i]->GetTransform()->SetRotation(0, cos(totalTime / 4) * 4, 0);
 	}
+
+	materials[11]->SetUVOffset(DirectX::XMFLOAT2(0, -tan(totalTime / 4) * 0.15f));
+	materials[11]->SetEmitAmount(DirectX::XMFLOAT3(sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f, sin(totalTime / 1) * 0.25f + 0.1f));
 }
 
 // --------------------------------------------------------
