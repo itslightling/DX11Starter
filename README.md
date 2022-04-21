@@ -8,9 +8,9 @@ Normally I have school projects on a separate account, but decided a solo advanc
 
 ## Controls
 
-WASD - Directional Camera Movement (Locally Oriented)
-Q/E - Move Up/Down (Globally Oriented)
-R/F - Look Up/Down (Pitch)
-Z/C - Look Left/Right (Yaw)
-1 - Load Scene 1 (Surrealist WeirdScape)
-2 - Load Scene 2 (Material Test Scene)
+WASD - Directional Camera Movement (Locally Oriented)  
+Q/E - Move Up/Down (Globally Oriented)  
+R/F - Look Up/Down (Pitch)  
+Z/C - Look Left/Right (Yaw)  
+1 - Load Scene 1 (Surrealist WeirdScape)  
+2 - Load Scene 2 (Material Test Scene)  
